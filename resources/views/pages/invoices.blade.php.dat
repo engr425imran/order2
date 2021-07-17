@@ -1,0 +1,937 @@
+@extends('master')
+@section('title')
+    {{$title}}
+@endsection
+@section('stylesheet')
+    <link rel="stylesheet" type="text/css" href="{{asset('public/css/datatables.min.css')}}">
+    <!--<link rel="stylesheet" type="text/css" href="{{'public/css/buttons.dataTables.min.css'}}">-->
+    <!--<link rel="stylesheet" type="text/css" href="{{'public/css/buttons.bootstrap4.min.css'}}">-->
+    <link href="{{asset('public/css/bootstrap-fileupload.css')}}" rel="stylesheet" />
+@endsection
+@section('content')
+
+    <style>
+        .rdonly{
+            background-color: #ffffff;
+        }
+        
+        .modal.left .modal-dialog {
+            position: fixed;
+            margin: auto;
+            /*width: 320px;*/
+            height: 100%;
+            -webkit-transform: translate3d(0%, 0, 0);
+            -ms-transform: translate3d(0%, 0, 0);
+            -o-transform: translate3d(0%, 0, 0);
+            transform: translate3d(0%, 0, 0);
+        }
+
+        .modal.left .modal-content {
+            height: 100%;
+            overflow-y: auto;
+            width: 500px;
+        }
+
+        .modal.left .modal-body {
+            padding: 15px 15px 80px;
+        }
+
+        .modal.left.fade .modal-dialog {
+            right: -320px;
+            -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+            -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+            -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+            transition: opacity 0.3s linear, right 0.3s ease-out;
+        }
+
+        .modal.left.fade.show .modal-dialog {
+            right: 0;
+        }
+
+        /* ----- MODAL STYLE ----- */
+        .modal-content {
+            border-radius: 0;
+            border: none;
+        }
+
+        .modal-header {
+            border-bottom-color: #eeeeee;
+            background-color: #fafafa;
+        }
+        .modal.left.fade.show {
+            z-index: 99999999999999;
+            background-color: rgba(0, 0, 0, 0.7098039215686275);
+        }
+
+
+        /*.modal-content {
+            width: 100vw;
+        }*/
+        .modal-dialog.modal-xl {
+            margin: 0px!Important;
+            padding: 0px!important;
+            width: 100%;
+        }
+    </style>
+
+    <div class="content-header row">
+        <div class="content-header-left col-md-6 col-12 mb-2">
+            <h3 class="content-header-title mb-0">Invoice List</h3>
+            <div class="row breadcrumbs-top">
+        
+            </div>
+        </div>
+        <div class="content-header-right text-md-right col-md-6 col-12">
+            <div class="form-group">
+                <!--<a class="btn-icon btn btn-secondary btn-round" ><i class="ft-bell"></i> </a>-->
+                {{-- <a href="#" class="btn-icon btn btn-secondary btn-round btn-success addInv" data-toggle="modal" data-target="#xlarge"><i class="fa fa-product-hunt"></i> Add New</a> --}}
+                <a href="{{ route('add.invoice') }}" class="btn-icon btn btn-secondary btn-round btn-success"><i class="fa fa-product-hunt"></i> Add New</a>
+            </div>
+        </div>
+    </div>
+
+    <section id="minimal-statistics">
+        
+        <!--//*************************************-->
+        <!--    
+        <div class="modal right fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel2">Right Sidebar</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                        </p>
+                    </div>
+
+                </div> modal-content 
+            </div> modal-dialog 
+        </div> modal -->
+        
+
+        <div class="modal left fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <label class="modal-title text-text-bold-600 text-center" id="myModalLabel33"><b>New Product</b></label>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{route('save.product')}}" method="post" id="addProForm" enctype="multipart/form-data">
+                        <div class="modal-body">  
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" name="p_name" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>SKU</label>
+                                        <input type="text" name="sku" class="form-control" placeholder="">
+                                    </div>
+                                </div>
+
+                            </div>
+                                                
+                            <div class="form-group">
+                                <label>Product Image</label>
+                                <div class="controls">
+                                    <div data-provides="fileupload" class="fileupload fileupload-new">
+                                        <div style="width: 180px; height: 130px; line-height: 20px;" class="fileupload-new thumbnail">
+                                            <img alt="" src="{{asset('public/img/empty.jpg')}}">
+                                        </div>
+                                        <div style="width:180px; height: 130px; line-height: 20px;" class="fileupload-preview fileupload-exists thumbnail"></div>
+                                        <div>
+                                            <span class="btn btn-sm bg-primary btn-file"><span class="fileupload-new">Select image</span>
+                                            <span class="fileupload-exists">Change</span>
+                                            <input type="file" name="p_image" class="default"></span>
+                                            <a data-dismiss="fileupload" class="btn btn-sm bg-danger fileupload-exists" href="#">Remove</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Sales Description</label>
+                                <textarea name="sales_des" class="form-control"></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Sales Price</label>
+                                        <input type="text" name="sales_price" class="form-control"  placeholder="Enter sale price">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Income Account</label>
+                                        <select name="income_account" class=" form-control">
+                                                <option value="1">Income Account 1</option>
+                                                <option value="2">Income Account 2</option>
+                                                <option value="3">Income Account 3</option>
+                                                <option value="4">Income Account 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Cost</label>
+                                        <input type="text" name="cost" class="form-control"  placeholder="Enter sale price">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Expense Account</label>
+                                        <select name="expense_account" class=" form-control">
+                                                <option value="1">Expense Account 1</option>
+                                                <option value="2">Expense Account 2</option>
+                                                <option value="3">Expense Account 3</option>
+                                                <option value="4">Expense Account 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            {{csrf_field()}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Initial Quantity </label>
+                                        <input type="text" name="q_on_hand" class="form-control" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Type</label>
+                                        <select name="type" class=" form-control">
+                                            <option value="1">Inventory</option>
+                                                <option value="2">Non-Inventory</option>
+                                                <option value="3">Service</option>
+                                        </select>
+                                    </div>
+                                </div>                        
+                            </div> 
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Reorder point</label>
+                                        <input type="text" name="reorder_point" class="form-control" placeholder="">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label>Asset Account</label>
+                                            <select name="asset_account" class=" form-control">
+                                                    <option value="1">Asset 1</option>
+                                                    <option value="2">Asset 2</option>
+                                                    <option value="3">Asset 3</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <input type="submit" class="btn btn-outline-primary btn-md" value="Save">
+                        </div>
+                    </form> 
+                </div>           
+            </div>
+        </div>
+        
+        <!--*******************************************-->
+        <div class="row">
+            <div class="col-xl-6 col-lg-6 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media align-items-stretch">
+                            <div class="p-2 text-center bg-warning">
+                                <i class="fa fa-minus-circle font-large-2 white"></i>
+                            </div>
+                            <div class="py-1 px-2 media-body">
+                                <h5 class="warning">DUE</h5>
+                                <h5 class="text-bold-400"><span class="due">0</span> R</h5>
+                                
+                                <div class="progress mt-1 mb-0" style="height: 7px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        
+            <div class="col-xl-6 col-lg-6 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media align-items-stretch">
+                            <div class="p-2 text-center bg-success">
+                                <i class="fa fa-plus font-large-2 white"></i>
+                            </div>
+                            <div class="py-1 px-2 media-body">
+                                <h5 class="success">Paid</h5>
+                                <h5 class="text-bold-400"><span class="paid">0</span> R</h5>
+                                <div class="progress mt-1 mb-0" style="height: 7px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+    
+    
+
+    <div class="modal fade text-left " id="xlarge" tabindex="-1" style="height: 100%;" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document" style="margin: auto; max-height:85%;">
+            <div class="modal-content" style=" width: 100vw;">
+                <div class="modal-header">
+                    <label class="modal-title text-text-bold-600 text-center" id="myModalLabel33"><b>Invoice</b></label>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+                <form action="{{route('save.invoice')}}" method="post" id="addInvForm" enctype="multipart/form-data">
+                    <div class="modal-body" style="  max-height: 80vh; overflow-y: scroll;">                                          
+                        <div class="row">
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Invoice ID</label>
+                                    <input type="text" name="invoice_id" readonly id="invoice_id" class="form-control" placeholder="">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Customer</label>
+                                        <select name="cust_id" id="cust_id" style="width:100%" class="select2 form-control">
+                                                <option value="">-select-</option>
+                                                @foreach($customers as $cust)
+                                                <option value="{{$cust->cust_id}}">{{$cust->display_name}}</option>
+                                                @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div> 
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="text" name="email"  id="email" class="form-control" placeholder="">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label style="float: right;"><b>Balance Due:</b> 0</label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {{csrf_field()}}
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Billing Address</label>
+                                    <textarea name="bill_address"  id="bill_address" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Terms</label>
+                                        <select name="terms" id="terms" style="width: 100%;" class="select2 form-control">
+                                            <option value="1">Due On Receipt</option>
+                                            <option value="2">Net 15</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Invoice Date</label>
+                                    <input type="date" name="invoice_date" id="invoice_date" value="{{date('Y-m-d',strtotime(now()))}}" class="form-control">
+                                </div>           
+                            </div> 
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Due Date</label>
+                                    <input type="date" name="due_date" id="due_date" value="{{date('Y-m-d',strtotime(now()))}}" class="form-control">
+                                </div>           
+                            </div> 
+                        </div>
+
+                        <div class="row">
+                                
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label></label>
+                                    <input type="button" class="form-control btn btn-primary btn-sm" id="addItem" style="width: auto;margin-top: 28px;" value="Add">
+                                </div>
+                                <!--<button type="button" class="btn btn-demo" data-toggle="modal" data-target="#exampleModal">
+                                    Right Sidebar Modal
+                                </button>  -->
+                            </div>      
+                                
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+
+                                    <div class="card-content collapse show">
+                                        <div class="card-body card-dashboard">
+                                            
+                                            <div class="table table-responsive packtbl">
+                                                <table class="table table-bordered" id="packadd">
+                                                    <thead class="data-table-head">
+                                                        <tr class="data-table-head-row" style="background: #064F79 ;color:white">
+                                                            <th style="width:10%;">Product</th>
+                                                            <th style="width:10%;">SKU</th>
+                                                            <th style="width:40%;">Description</th>
+                                                            <th style="width:10%;">Quantity</th>
+                                                            <th style="width:10%;">Rate</th>
+                                                            <th style="width:10%;">Discount(%)</th>
+                                                            <th style="width:10%;">Account</th>
+                                                            <th style="width:10%;">Tax</th>
+                                                            <th style="width:10%;">Amount</th>
+                                                            <th style="width:7%;"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="packtblbody">
+                                                        <tr>
+
+                                                            <td style="width:15%;padding: 3px" >
+                                                                <select name="productid[]"  id="pid" style="width:100%" class="select2-icons form-control productid" >
+                                                                    <option value="">--Select--</option>
+                                                                </select>
+                                                            </td>
+                                                            <td style="width:10%;padding: 3px">
+                                                                <input type="text" name="sku[]"  class="form-control sku"/>
+                                                            </td>
+                                                            <td style="width:40%;padding: 3px">
+                                                                <input type="text" name="description[]" class="form-control description" />
+                                                            </td>
+                                                            <td style="width:10%;padding: 3px">
+                                                                <input type="number" name="quantity[]" class="form-control qty" />
+                                                            </td>
+                                                            <td style="width:10%;padding: 3px">
+                                                                <input type="number" name="rate[]" class="form-control rate" />
+                                                            </td>
+                                                            <td style="width:10%;padding: 3px">
+                                                                <input type="number" name="discount[]" value="0" class="form-control dis" />
+                                                            </td>
+                                                            <td style="width:10%;padding: 3px">
+                                                                <!--<input type="number" name="account[]" class="form-control acc" />-->
+                                                                <select name="accid[]" id="aid" style="width:100%" class="select2-icons form-control accid" >
+                                                                    <option value="1">Account 01</option>
+                                                                    <option value="2">Account 02</option>
+                                                                </select>
+                                                            </td>
+                                                            <td style="width:10%;padding: 3px">
+                                                                <input type="number" name="tax[]" value="{{$setups->tax}}" class="form-control tax" />
+                                                            </td>
+                                                            <td style="width:10%;padding: 3px">
+                                                                <input type="number" name="amount[]" readonly class="form-control amnt rdonly" />
+                                                            </td>
+                                                            <td style="width:5%;padding: 3px"><a class="deleteRow"></a></td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td style="text-align: left;" colspan="8">
+                                                                Total
+                                                            </td>
+                                                            <td style="width:15%;padding: 3px;text-align: left;" colspan="2">
+                                                                <span class="total">0</span>
+                                                            </td>
+                                                            
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="row">
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Message on Invoice</label>
+                                    <textarea name="msg_invoice" rows="4" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Message on Statement</label>
+                                    <textarea name="msg_state" rows="4" class="form-control"></textarea>
+                                </div>
+                            </div>
+                                <div class="col-md-4">
+                                <div class="form-group">
+                                    <label><i class="icon-anchor"></i> Attachments</label>
+                                    <input type="file" class="form-control" name="attach_file" placeholder="">
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+
+                    <div class="modal-footer">
+                        <input type="reset" class="btn btn-outline-secondary btn-md" data-dismiss="modal" value="close">
+                        <input type="submit" class="btn btn-outline-primary btn-md" value="Save">
+                    </div>
+                </form>                                                  
+            </div>
+        </div>
+    </div>
+
+
+    <section id="html5">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Product List:</h4>
+                        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+                        <div class="heading-elements">
+                            <ul class="list-inline mb-0">
+                                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                                <li><a data-action="reload"><i class="ft-rotate-cw"></i></a></li>
+                                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                                <li><a data-action="close"><i class="ft-x"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-content collapse show">
+                        <div class="card-body card-dashboard">
+                            <table id="invTable" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice</th>
+                                            <th>Customer</th>
+                                            <th>Date</th>
+                                            <th>Due Date</th>
+                                            <th>Balance</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody >
+                
+                                    </tbody>
+                            
+                                </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+@endsection
+
+@section('script')
+
+    <script src="{{asset('public/dt/datatable/datatables.min.js')}}"></script>
+
+    <!--<script src="{{'public/dt/datatable/buttons.bootstrap4.min.js'}}"></script>-->
+    <script type="text/javascript" src="{{asset('public/js/bootstrap-fileupload.js')}}"></script>
+
+    <script>
+    
+        $(document).ready(function () 
+        {
+            $(".select2").select2();
+            proList();
+            var counter = 0;var tax = "{{$setups->tax}}";
+
+            $("#addItem").on("click", function () {
+            console.log(""); 
+                var newRow = $("<tr>");
+                var cols = "";
+
+                //****new
+                cols += '<td style="padding: 3px" class="prow"><select required class="form-control select2 productid" name="productid[]"><option value="select">select</option></select></td>';
+                cols += '<td style="padding: 3px"><input type="text" required class="form-control sku" name="sku[]"/></td>';
+                cols += '<td style="padding: 3px"><input type="text" required class="form-control description" name="description[]"/></td>';
+                cols += '<td style="padding: 3px"><input type="number" required class="form-control qty" name="quantity[]"/></td>';
+                cols += '<td style="padding: 3px"><input type="number" required class="form-control rate" name="rate[]"/></td>';
+                cols += '<td style="padding: 3px"><input type="number" required class="form-control dis" value="0" name="discount[]"/></td>';
+                cols += '<td style="padding: 3px"><select required class="form-control select2 accid" name="accid[]"><option value="select">select</option></select></td>';
+                cols += '<td style="padding: 3px"><input type="number" required class="form-control tax" value="'+tax+'" name="tax[]"/></td>';
+                cols += '<td style="padding: 3px"><input type="number" required class="form-control rdonly amnt"  readonly name="amount[]"/></td>';
+                cols += '<td style="padding: 3px"><a href="#" style="color:red;" class="ibtnDel btn btn-xs"><i class="fa fa-trash"></i></a></td>';
+                //****new
+
+            
+                newRow.append(cols);
+                $("#packadd").append(newRow);
+                //***new
+                var p = $("#pid").html();
+                $(newRow).closest("tr").find('.productid').html(p);
+                
+                var a = $("#aid").html();
+                $(newRow).closest("tr").find('.accid').html(a);
+                //***new
+                counter++;
+            });
+            $("#packadd").on("click", ".ibtnDel", function (event) {
+                $(this).closest("tr").remove();       
+                counter -= 1;
+                sum();
+            });
+            //***new
+            $("#packadd").on("change", ".qty", function (event) 
+            {
+                var qty = $(this).val();
+                var rate= $(this).closest("tr").find('.rate').val();
+                var price = qty*rate;
+                
+                var disv = $(this).closest("tr").find('.dis').val();
+                var dis = (disv>0)? (disv/100)*rate:0;
+                var tdis = qty*dis;
+                
+                var taxv = $(this).closest("tr").find('.tax').val();
+                var tax = (taxv>0)? (taxv/100)*rate:0;
+                var ttax = qty*tax;
+                
+                var amnt =price-tdis+ttax ;
+                
+                $(this).closest("tr").find('.amnt').val(amnt);
+                sum();
+            });
+            $("#packadd").on("change", ".rate", function (event) 
+            {
+                var rate = $(this).val();
+                var qty = $(this).closest("tr").find('.qty').val();
+                var price = qty*rate;
+                
+                var disv = $(this).closest("tr").find('.dis').val();
+                var dis = (disv>0)? (disv/100)*rate:0;
+                var tdis = qty*dis;
+                
+                var taxv = $(this).closest("tr").find('.tax').val();
+                var tax = (taxv>0)? (taxv/100)*rate:0;
+                var ttax = qty*tax;
+                
+                var amnt = price-tdis+ttax ;
+                
+                $(this).closest("tr").find('.amnt').val(amnt);
+                sum();
+            });
+            $("#packadd").on("change", ".dis", function (event) 
+            {
+                
+                var qty = $(this).closest("tr").find('.qty').val();
+                var rate= $(this).closest("tr").find('.rate').val();
+                var price = qty*rate;
+                
+                
+                var disv = $(this).val();
+                var dis = (disv>0)? (disv/100)*rate:0;
+                var tdis = qty*dis;
+                
+                var taxv = $(this).closest("tr").find('.tax').val();
+                var tax = (taxv>0)? (taxv/100)*rate:0;
+                var ttax = qty*tax;
+                
+                var amnt =price-tdis+ttax ;
+                
+                $(this).closest("tr").find('.amnt').val(amnt);
+                sum();
+            });
+            $("#packadd").on("change", ".tax", function (event) 
+            {
+                var qty = $(this).closest("tr").find('.qty').val();
+                var rate= $(this).closest("tr").find('.rate').val();
+                var price = qty*rate;
+                
+                
+                var disv =$(this).closest("tr").find('.dis').val();
+                var dis = (disv>0)? (disv/100)*rate:0;
+                var tdis = qty*dis;
+                
+                var taxv = $(this).val();
+                var tax = (taxv>0)? (taxv/100)*rate:0;
+                var ttax = qty*tax;
+                
+                var amnt =price-tdis+ttax ;
+                $(this).closest("tr").find('.amnt').val(amnt);
+            });
+            //**new
+            
+            //***new
+            function sum()
+            {
+            var total = 0;
+                $('.amnt').each(function (index, element) {
+                    if($(element).val()!=""){
+                    total = total + parseFloat($(element).val()); 
+                    }
+                    $('.total').html(total);
+                }); 
+            }
+            //***new
+            
+            //***new
+            $("#packadd").on("change", ".productid", function (event) {
+                if($(this).val()=="0"){
+                    $('#exampleModal').modal('show');
+                }
+                var sku = $(this).find(':selected').data('sku');
+                var des = $(this).find(':selected').data('description');
+                var rate = parseFloat($(this).find(':selected').data('rate'));
+                var tt = "{{$setups->tax}}";
+                var taxv = parseFloat(tt);
+                if(taxv>0){
+                var  tax=((taxv/100)*rate).toFixed(2);
+                }else{
+                    var  tax=0; 
+                }
+
+                var amnt = parseFloat(tax) + parseFloat(rate);
+                
+                $(this).closest("tr").find('.sku').val(sku);
+                $(this).closest("tr").find('.description').val(des);
+                $(this).closest("tr").find('.rate').val(rate);
+                $(this).closest("tr").find('.qty').val(1);
+                $(this).closest("tr").find('.amnt').val(amnt);
+                sum();
+            });
+            //***new  
+        });
+        //***new  
+        function proList()
+        {
+            var op=" ";
+            var div=$('.packtbl').parent();
+            $.ajax({
+            type:'get',
+            url:'{{route('findProList')}}',
+            data:{},
+            success:function(data)
+            {
+                op+='<option value="" selected disabled>-chose-</option>';
+                op+='<option value="0">Add new</option>';
+                for(var i=0;i<data.length;i++)
+                {
+                    op+='<option value="'+data[i].product_id+'" data-sku="'+data[i].sku+'" data-description="'+data[i].sales_des+'" data-rate="'+data[i].sales_price+'" >'+data[i].p_name+'</option>';
+                }  
+                div.find('.productid').html(" ");
+                div.find('.productid').append(op);
+            },
+            error:function(){
+            }
+            });
+        }
+        //***new  
+
+    </script>    
+    
+    
+    
+    
+    
+    <script>
+        $(document).ready(function(){
+            $('#pmenu').addClass('active');
+            $('#inv').addClass('active');
+            countMethod();
+        });
+        var table = $('#invTable').DataTable(
+        {
+            "responsive": true,
+            "autoWidth" : false,
+        // "ordering": false,
+        // "paging" : true,
+                "processing": true,"serverSide": true,
+        // "columnDefs": [{ responsivePriority: 1, targets: 0 }],
+            "ajax":
+            {
+                "url":"<?= route('invPro') ?>",
+                "dataType":"json",
+                "type":"POST",
+                "data": function ( d )
+                {
+                    d._token= $('meta[name="csrf-token"]').attr('content');
+                }
+            },
+            "columns":[
+                {"data":"invoice_id"},
+                {"data":"cust_id"},
+                {"data":"invoice_date"},
+                {"data":"due_date"},
+                {"data":"opening_balance"},
+                {"data":"invtotal"},
+                {"data":"status"},
+                {"data":"action","searchable":false,"orderable":false}
+            ],
+            "order": [[0, 'desc']]   
+        });
+        
+        
+        $("#addProForm").on('submit',function(event)
+        {  
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: "{{route('save.product')}}",
+                data:new FormData(this),
+                dataType:'JSON',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success:function(data)
+                {
+                    $('#exampleModal').modal('hide');
+                    toastr[data.type](data.message);
+                    proList();
+                    document.getElementById("addProForm").reset();
+                }
+            });
+            $('#title').val('');
+            $('#body').val('');
+        });
+        $("#addInvForm").on('submit',function(event)
+        {  
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: "{{route('save.invoice')}}",
+                data:new FormData(this),
+                dataType:'JSON',
+                contentType: false,
+                cache: false,
+                processData: false,
+                success:function(data)
+                {
+                    $('#xlarge').modal('hide');
+                    toastr[data.type](data.message);
+                    table.ajax.reload( null, false );
+                    document.getElementById("addInvForm").reset();
+                    countMethod();
+                }
+            });
+            $('#title').val('');
+            $('#body').val('');
+        });
+
+        function countMethod()
+        {
+            $.ajax({
+                type: 'POST',
+                url: "{{route('countInvoice')}}",
+                data:{
+                    "_token" : $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data)
+                {
+                    $('.due').html(data.due);$('.paid').html(data.paid);
+                }
+            });
+        } 
+
+        $("#cust_id").on('change',function()
+        {
+            var cust_id = $("#cust_id").val();
+            console.log(cust_id);
+            $.ajax({
+                type: 'POST',
+                url: "{{route('getInfo')}}",
+                data:{
+                    "_token" : $('meta[name="csrf-token"]').attr('content'),
+                    "cust_id":cust_id
+                },
+                success: function(data)
+                {
+                    $('#email').val(data.email);
+                    $('#bill_address').val(data.bill_add);
+                }
+            });
+        });
+        $("#terms").on('change',function()
+        {
+            var term_id = $("#terms").val();
+            var inv_date = $("#invoice_date").val();
+            $.ajax({
+                type: 'POST',
+                url: "{{route('getDueDate')}}",
+                data:{
+                    "_token" : $('meta[name="csrf-token"]').attr('content'),
+                    "term_id":term_id,
+                    "inv_date": inv_date
+                },
+                success: function(data)
+                {
+                    $('#due_date').val(data);
+                }
+            });
+        });
+
+
+        $(document).on('click','.addInv', function() 
+        {
+            $.ajax({
+                type: 'POST',
+                url: "{{route('generate.invno')}}",
+                data: {
+                _token: $('input[name=_token]').val()
+                },
+            success: function(data)
+            {
+                $('#invItems').html('');
+                $('#invoice_id').val(data);
+            }
+            });
+        });
+        $(document).on('click','#addItem', function() 
+        { 
+            $.ajax({
+                type: 'POST',
+                url: "{{URL::to('/add-invoice-item')}}",
+                data: {
+                _token: $('input[name=_token]').val(),
+                p_id: $('#p_id').val()
+                },
+                success: function(data)
+                {
+                    $('#invItems').html('');
+                    $('#invItems').html(data);
+                }
+            });
+        });
+        $(document).on('click','.rightmodal', function() 
+        { 
+            $('#exampleModal').modal('show');
+        });
+    </script>
+@endsection

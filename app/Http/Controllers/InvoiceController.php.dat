@@ -1,0 +1,764 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Customer;
+use App\Product;
+use App\Invoice;
+use App\Invdetail;
+use App\Setup;
+use Auth;
+use Response;
+use DB;
+class InvoiceController extends Controller
+{
+    public function manageInvoice() 
+    {
+        $data = array();
+        $data["title"] = "Invoice Management";
+        $data["customers"] = Customer::get();
+        $data["products"] = Product::get();
+        $data["setups"] = Setup::find(1);
+
+        $data["invoices"] = DB::table('invoices')
+                            ->leftJoin('customers', 'invoices.cust_id', '=', 'customers.cust_id')
+                            ->get();
+
+        return view('pages.invoices', $data);
+    }
+
+    public function addInvoice ()
+    {
+        $data = array();
+        $data['accounts'] = DB::table('account')->get();
+        $data['tax_rates'] = DB::table('tax')->get();
+        $data['customers'] = DB::table('customers')->get();
+        $data['products'] = DB::table('products')->get();
+        
+        $data["iaccount"] = DB::table('account')->where('ac_type', 10)->first();
+        $data["taxs"] = DB::table('tax')->get();
+
+        return view('pages.addInvoice', $data);
+    }
+
+    public function catchProduct (Request $request)
+    {
+        $e = $request->val;
+
+        if ( $e > 0 ){
+
+            $data = DB::table('products')->where('product_id', $e)->first();
+
+            echo $data->s_description;
+        } else {
+            echo '';
+        }
+    }
+
+    public function productRate (Request $request)
+    {
+        $e = $request->val;
+
+        if ( $e > 0 ){
+
+            $data = DB::table('products')->where('product_id', $e)->first();
+
+            echo $data->s_unit_price;
+        } else {
+            echo '';
+        }
+    }
+
+    public function productAcc (Request $request)
+    {
+        $e = $request->val;
+        $data = DB::table('products')->where('product_id', $e)->first();
+        if ( $data->s_account > 0){
+
+            $sell_acc = DB::table('account')->where('ac_id', $data->s_account)->first();
+
+            $ren_acc_s_1 = $ren_acc_s_2 = $ren_acc_s_3 = $ren_acc_s_4 = $ren_acc_s_5 ='';
+
+            $ac_type_s_1 = $this->get_acgrouptype_edit(1, $sell_acc->ac_id);
+            $ac_type_s_2 = $this->get_acgrouptype_edit(2, $sell_acc->ac_id);
+            $ac_type_s_3 = $this->get_acgrouptype_edit(3, $sell_acc->ac_id);
+            $ac_type_s_4 = $this->get_acgrouptype_edit(4, $sell_acc->ac_id);
+            $ac_type_s_5 = $this->get_acgrouptype_edit(5, $sell_acc->ac_id);
+
+            foreach ($ac_type_s_1 as $a) {
+
+                $ren_acc_s_1 .='<option value="'.$a->ac_id.'">'.$a->ac_number.' - '.$a->ac_name .'</option>';
+            }
+
+            foreach ($ac_type_s_2 as $a) {
+
+                $ren_acc_s_2 .='<option value="'.$a->ac_id.'">'.$a->ac_number.' - '.$a->ac_name .'</option>';
+            }
+
+            foreach ($ac_type_s_3 as $a) {
+
+                $ren_acc_s_3 .='<option value="'.$a->ac_id.'">'.$a->ac_number.' - '.$a->ac_name .'</option>';
+            }
+
+            foreach ($ac_type_s_4 as $a) {
+
+                $ren_acc_s_4 .='<option value="'.$a->ac_id.'">'.$a->ac_number.' - '.$a->ac_name .'</option>';
+            }
+
+            foreach ($ac_type_s_5 as $a) {
+
+                $ren_acc_s_5 .='<option value="'.$a->ac_id.'">'.$a->ac_number.' - '.$a->ac_name .'</option>';
+            }
+
+            $ren_data ='<option value="'.$sell_acc->ac_id.'">'.$sell_acc->ac_number.' - '.$sell_acc->ac_name.'</option>';
+            $ren_data .='
+                <option value="addAcount" class="add_more">&#43; Add Account</option>
+                <optgroup label="Income">
+                    '.$ren_acc_s_1.'
+                </optgroup>
+                <optgroup label="Equity">
+                    '.$ren_acc_s_2.'
+                </optgroup>
+                <optgroup label="Liability">
+                    '.$ren_acc_s_3.'
+                </optgroup>
+                <optgroup label="Assets">
+                    '.$ren_acc_s_4.'
+                </optgroup>
+                <optgroup label="Expense">
+                    '.$ren_acc_s_5.'
+                </optgroup>
+            ';
+
+            echo $ren_data;
+        } else {
+            echo '';
+        }
+    }
+
+    public function productTax (Request $request)
+    {
+        $e = $request->val;
+        $data = DB::table('products')->where('product_id', $e)->first();
+
+        if ( $data->s_tax_rate > 0 ){
+
+            $tax= DB::table('tax')->where('tax_id', $data->s_tax_rate)->first();
+
+            $ren_tax ='<option value='.$tax->tax_amount.'>'.$tax->tax_name.' ('.$tax->tax_amount.' %)</option>';
+            $ren_tax .='<option value="addNewTax" class="add_more">&#43; Add New Tax</option>';
+
+            $all = DB::table('tax')->where('tax_id', '!=',$tax->tax_id)->get();
+
+            foreach ($all as $t) {
+                $ren_tax .='<option value='.$t->tax_amount.'>'.$t->tax_name.' ('.$t->tax_amount.' %)</option>';
+            }
+
+            echo $ren_tax;
+        } else {
+            echo '';
+        }
+    }
+
+    public function productTaxamount (Request $request)
+    {
+        $e = $request->val;
+        $data = DB::table('products')->where('product_id', $e)->first();
+
+        if ( $data->s_tax_rate > 0 ){
+
+            $tax= DB::table('tax')->where('tax_id', $data->s_tax_rate)->first();
+
+            echo $tax->tax_amount;
+        } else {
+            echo '';
+        }
+    }
+
+    public function catchAcTax (Request $request)
+    {
+        $e = $request->val;
+        
+        $ren_data = '<option value="0" disabled selected></option>';
+        $ren_data .='<option value="addNewTax" class="add_more">&#43; Add New Tax</option>';
+
+        if ($e > 0) {
+
+            $data = DB::table('account')
+                ->leftJoin('tax', 'account.tax_account', '=', 'tax.tax_id')
+                ->where('ac_id', $e)->first();
+
+            
+
+            $ren_data .='<option value="'.$data->tax_amount.'" selected>'.$data->tax_name . ' (' . $data->tax_amount . ' % )'.'</option>';
+
+            $taxs = DB::table('tax')->where('tax_id', '!=', $data->tax_id)->get();
+
+            foreach ($taxs as $t) {
+
+                $ren_data .='<option value="'.$t->tax_amount.'">'.$t->tax_name . ' (' . $t->tax_amount . ' % )'.'</option>';
+            }
+
+            echo $ren_data."__".$data->tax_amount;
+
+            // echo $e;
+
+        } else {
+
+            $taxs = DB::table('tax')->get();
+
+            foreach ($taxs as $t) {
+
+                $ren_data .='<option value="'.$t->tax_amount.'">'.$t->tax_name . ' (' . $t->tax_amount . ' % )'.'</option>';
+            }
+
+            echo $ren_data;
+        }
+    }
+
+    public function catchOnlytax (Request $request)
+    {
+        $e = $request->val;
+
+        $data = DB::table('account')
+                ->leftJoin('tax', 'account.tax_account', '=', 'tax.tax_id')
+                ->where('ac_id', $e)->first();
+
+        echo $data->tax_amount;
+    }
+
+
+    public function catchCustomer (Request $request)
+    {
+        $e = $request->val;
+
+        $result = DB::table('customers')->where('cust_id', $e)->first();
+
+        $date = date('Y-m-d');
+        $d ='';
+
+        $ren_data = '';
+
+        $trems = '';
+        if ($result->terms == 1) {
+            $trems .='<option value="1">Due on Receipt</option>';
+            $d .= date('Y-m-d', strtotime("+1 days"));
+        } else if ($result->terms == 2) {
+            $trems .='<option value="2">Net 15</option>';
+            $d .= date('Y-m-d', strtotime("+15 days"));
+        } else if ($result->terms == 3) {
+            $trems .='<option value="3">Net 30</option>';
+            $d .= date('Y-m-d', strtotime("+30 days"));
+        } else if ($result->terms == 4) {
+            $trems .='<option value="4">Net 60</option>';
+            $d .= date('Y-m-d', strtotime("+60 days"));
+        }
+
+        $ren_data ='
+            <div class="col-md-3 pull-left">
+                                        
+                <div class="form-group">
+                    <label>Terms</label>
+                    <select name="terms" class="form-control form-control-sm">
+                        '. $trems.'
+                    </select>
+                    
+                </div>
+            
+            </div>
+            
+            <div class="col-md-3 pull-left">
+                <div class="form-group">
+                    <label for="reference">Reference</label>
+                    <input type="text" name="reference" id="reference" class="form-control form-control-sm" placeholder="">
+                </div>
+            </div>
+            
+            <div class="col-md-3 pull-left">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" class="form-control form-control-sm" value="'.$result->email.'">
+                </div>
+            </div>
+
+            <div class="col-md-3 pull-left">
+                <div class="form-group">
+                    <label>Address</label>
+                    <textarea name="address" id="address" class="form-control form-control-sm p-1" rows="3">'.$result->b_street.' '.$result->b_city. ' '.$result->b_postal.' '.$result->c_country.'</textarea>
+                </div>
+            </div>
+        ';
+        echo $ren_data;
+    }
+
+    public function customerInfodue (Request $request)
+    {
+        $e = $request->val;
+
+        $result = DB::table('customers')->where('cust_id', $e)->first();
+
+        $date = date('Y-m-d');
+        $d ='';
+        
+        if ($result->terms == 1) {
+            $d .= date('Y-m-d', strtotime("+1 days"));
+        } else if ($result->terms == 2) {
+            $d .= date('Y-m-d', strtotime("+15 days"));
+        } else if ($result->terms == 3) {
+            $d .= date('Y-m-d', strtotime("+30 days"));
+        } else if ($result->terms == 4) {
+            $d .= date('Y-m-d', strtotime("+60 days"));
+        }
+        
+        echo $d;
+    }
+
+    public function saveproInvoice (Request $request)
+    {
+        $data = array();
+
+        $data['item_code'] = $request->item_code;
+        $data['item_name'] = $request->item_name;
+        $data['purchase'] = $request->purchase;
+        $data['p_unit_price'] = $request->p_unit_price;
+        $data['p_account'] = $request->p_account;
+        $data['p_tax_rate'] = $request->p_tax_rate;
+        $data['p_description'] = $request->p_description;
+        $data['sell'] = $request->sell;
+        $data['s_unit_price'] = $request->s_unit_price;
+        $data['s_account'] = $request->s_account;
+        $data['s_tax_rate'] = $request->s_tax_rate;
+        $data['s_description'] = $request->s_description;
+        $data['track'] = $request->track;
+        $data['inventory_account'] = $request->inventory_account;
+
+        if ($request->track > 0) {
+
+            $data['sell'] = 1;
+            $data['purchase'] = 1;
+        }
+
+        $data['created_by'] = auth()->user()->id;
+        $data['created_date'] = date('Y-m-d');
+        $data['created_time'] = date('H:i:s');
+
+        DB::table('products')->insert($data);
+
+        session()->flash('success', 'Product Information Saved Successfully!');
+
+        return redirect('/cubebooks/add-invoice');
+    }
+
+    public function saveaccInvoice (Request $request)
+    {
+        $data = array();
+
+        $data['ac_name'] = $request->ac_name;
+        $data['ac_number'] = $request->ac_number;
+        $data['ac_type'] = $at = $request->ac_type;
+        $data['tax_account'] = $request->tax_account;
+        $data['description'] = $request->description;
+
+        $e = DB::table('account_type')->where('type_id', $at)->first();
+
+        $data['ac_group'] = $e->type_group;
+
+        $data['created_by'] = auth()->user()->id;
+
+        DB::table('account')->insert($data);
+
+        session()->flash('success', 'Account Information Saved Successfully!');
+
+        return redirect('/cubebooks/add-invoice');
+    }
+
+    public function savetaxInvoice (Request $request)
+    {
+        // dd($request->all());
+        $data = array();
+
+        $data['tax_name'] = $request->tax_name;
+        $data['tax_amount'] = $request->tax_amount;
+
+        $data['created_by'] = auth()->user()->id;
+
+        DB::table('tax')->insert($data);
+
+        session()->flash('success', 'Tax Information Saved Successfully!');
+
+        return redirect('/cubebooks/add-invoice');
+    }
+
+
+    public function storeInvoice (Request $request)
+    {
+        // dd($request->all());
+
+        $data = array();
+
+        $data['created_by'] = auth()->user()->id;
+        $data['created_date'] = date('Y-m-d');
+        $data['created_time'] = date('H:i:s');
+
+        $data['cust_id'] = $request->cust_id;
+        $data['invoice_code'] = $request->invoice_code;
+        $data['terms'] = $request->terms;
+        $data['invoice_date'] = $request->invoice_date;
+        $data['due_date'] = $request->due_date;
+        $data['reference'] = $request->reference;
+        $data['tax_ein'] = $request->tax_ein;
+
+        $data['sub_total'] = $request->sub_total;
+        $data['adjustment_tax'] = $request->adjustment_tax;
+        $data['final_total'] = $request->final_total;
+
+        $invoice_id = DB::table('invoices')->insertGetId($data);
+
+        $data2 = array();
+
+
+        $product = $request->product;
+        $description = $request->description;
+        $quantity = $request->quantity;
+        $rate = $request->rate;
+        $discount = $request->discount;
+        $account = $request->account;
+        $tax = $request->tax;
+        $tax_amount = $request->tax_amount;
+        $amount = $request->amount;
+
+        for ($i = 0; $i < count($product); $i++) {
+
+            $data2['invoice_id'] = $invoice_id;
+            $data2['product_id'] = $product[$i];
+            $data2['description'] = $description[$i];
+            $data2['quantity'] = $quantity[$i];
+            $data2['rate'] = $rate[$i];
+            $data2['discount'] = $discount[$i];
+            $data2['account'] = $account[$i];
+            $data2['tax'] = $tax[$i];
+            $data2['tax_amount'] = $tax_amount[$i];
+            $data2['amount'] = $amount[$i];
+
+            DB::table('invoice_details')->insert($data2);
+        }
+        session()->flash('msg', 'Information Saved Successfully!');
+
+        return redirect('/cubebooks/invoices');
+    }
+
+
+    public function editInvoice ($id)
+    {
+        $data = array();
+
+        $data['old_invoice'] = DB::table('invoices')->where('invoice_id', $id)->first();
+
+        $data['accounts'] = DB::table('account')->get();
+        $data['tax_rates'] = DB::table('tax')->get();
+        $data['customers'] = DB::table('customers')->get();
+        $data['products'] = DB::table('products')->get();
+        
+        $data["iaccount"] = DB::table('account')->where('ac_type', 10)->first();
+        $data["taxs"] = DB::table('tax')->get();
+
+        return view('pages.editInvoice', $data);
+    }
+
+
+
+
+    public static function get_acgrouptype_edit ($id, $not_this_id)
+    {
+        $e = DB::table('account')
+            ->where('ac_group', $id)
+            ->where('ac_id', '!=', $not_this_id)
+            ->get();
+
+        return $e;
+    }
+
+
+
+    // Invoice old function.
+    public function getInv(Request $request)
+    {
+        $columns = array(
+            0 =>'invoice_code',
+            1=> 'cust_id',
+            2=> 'invoice_date',
+            3=> 'due_date',
+            4=> 'due_date',
+            5=> 'invtotal',
+            6=> 'status',
+            7=> 'action'
+        );
+        
+        $totalData = Invoice::join('customers','invoices.cust_id','=','customers.cust_id')
+                ->where('customers.user_id',Auth::guard('web')->user()->id)->count();
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+        
+       
+        if(empty($request->input('search.value')))
+        {
+            $posts = Invoice::join('customers','invoices.cust_id','=','customers.cust_id')
+                    ->select('invoices.*','customers.display_name','customers.opening_balance',
+                            DB::raw("( SELECT sum(invdetails.total) FROM invdetails WHERE "
+                            . "invdetails.`invoice_id`=invoices.`invoice_id`) as invtotal"))
+                    ->where('customers.user_id',Auth::guard('web')->user()->id)
+                    ->offset($start)
+                    ->limit($limit)
+                    ->orderBy($order,$dir)
+                    ->get();
+            $totalFiltered =  Invoice::join('customers','invoices.cust_id','=','customers.cust_id')
+                ->where('customers.user_id',Auth::guard('web')->user()->id)->count();
+        }
+        else{
+            $search = $request->input('search.value');
+            $posts = Invoice::join('customers','invoices.cust_id','=','customers.cust_id')
+                    ->select('invoices.*','customers.display_name','customers.opening_balance',
+                            DB::raw("( SELECT sum(invdetails.total) FROM invdetails WHERE "
+                            . "invdetails.`invoice_id`=invoices.`invoice_id`) as invtotal"))
+                    ->where('customers.user_id',Auth::guard('web')->user()->id)
+                    ->where('customers.display_name', 'like', "%{$search}%")
+                    ->orwhere('invoices.email', 'like', "%{$search}%")
+                    ->orwhere('invoices.bill_address', 'like', "%{$search}%")
+                    ->offset($start)
+                    ->limit($limit)
+                    ->orderBy($order, $dir)
+                    ->get();
+            $totalFiltered = Invoice::join('customers','invoices.cust_id','=','customers.cust_id')
+                            ->select('invoices.*','customers.display_name','customers.opening_balance',
+                                    DB::raw("( SELECT sum(invdetails.total) FROM invdetails WHERE "
+                                    . "invdetails.`invoice_id`=invoices.`invoice_id`) as invtotal"))
+                            ->where('customers.user_id',Auth::guard('web')->user()->id)
+                            ->where('customers.display_name', 'like', "%{$search}%")
+                            ->orwhere('invoices.email', 'like', "%{$search}%")
+                            ->orwhere('invoices.bill_address', 'like', "%{$search}%")
+                            ->count();
+        }
+        $data = array();
+
+        if($posts){
+            foreach($posts as $r)
+            {     
+                $nestedData['invoice_id'] = $r->invoice_code;
+                $nestedData['cust_id'] = $r->display_name.'<br>'.$r->email.'<br>'.$r->bill_address;
+                $nestedData['invoice_date'] = $r->invoice_date;
+                $nestedData['due_date'] = $r->due_date;
+                $nestedData['opening_balance'] = $r->opening_balance;
+                $nestedData['invtotal'] = $r->invtotal;
+
+                if($r->status==0){
+                    $sts = '<span class="badge badge-warning">Due</span>';
+                }else{
+                    $sts = '<span class="badge badge-success">Paid</span>';
+                }
+                $nestedData['status'] = $sts;
+                $nestedData['action']= '';
+                $data[] = $nestedData;
+            }
+        }     
+        $json_data = array(
+            "draw"	      => intval($request->input('draw')),
+            "recordsTotal"    => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data"	      => $data
+        );
+        echo json_encode($json_data);    
+    }
+
+    public function getInfo(Request $request)
+    {
+        $cust_id = $request->cust_id;
+        $result = Customer::where('cust_id',$cust_id)
+              ->select('email','b_street','b_city','b_state','b_postal','b_country')
+              ->first();
+        $info["email"] = $result->email;
+        $info["bill_add"] = $result->b_street.','.$result->b_city.','.$result->b_state
+                .','.$result->b_postal.','.$result->b_country.',';
+        return $info;
+    }
+
+    public function getDueDate(Request $request)
+    {
+        $id = $request->term_id;
+        $inv_date = $request->inv_date;
+        $days_of_due = Terms::where('id',$id)->value('days_of_due');
+        $dt = date('Y-m-d', strtotime(date("Y-m-d", strtotime($inv_date)) . " +".$days_of_due." day"));
+
+        //echo date("Y-m-d", strtotime(date("Y-m-d", strtotime($request->ins_date)) . " + 1 year".'- 1 day'));
+        return $dt;
+    }
+
+    public function addInvoiceItem(Request $request)
+    {
+        $p_id = $request->p_id;
+        $product_info = Product::where('p_id',$p_id)->first();
+
+        Cart::add($product_info->p_id, $product_info->name, 1, $product_info->sales_price,
+                ['order_id'=>0,'sku'=>$product_info->sku,'des'=>$product_info->sales_des,'rate'=>$product_info->sales_price]);
+        $all = Cart::content()->where('options.order_id',0);
+        $output = "";
+        //$tfoot="";
+        $i=1;
+        $total=0;
+
+        foreach($all as $c){
+
+            $output .= '<tr>'
+                        . '<td>'.$i.'</td>'
+                        . '<td>'.$c->name.'</td>'
+                        . '<td>'.$c->options->sku.'</td>'
+                       
+                        . '<td>'.$c->options->des.'</td>'
+                        . '<td>'.$c->qty.'</td>'
+                        . '<td>'.$c->options->rate.'</td>'
+                        . '<td>'.$c->total.'</td>'
+                        . '<td>'.'<a href="#" id="del-item" class="btn bg-maroon btn-xs" data-del_ois="'.$c->rowId.'"><i class="fa fa-trash"></i></a>'
+                    . '</tr>';
+            $i++;
+            $total+=$c->total;
+        }
+        //        $tfoot .= '<tr><th colspan="3" style="text-align:left">Total</th>
+        //                   <th>'.$total.'</th>
+        //                   <th></th></tr>';
+                
+        //        $output['tbody']=$tbody;
+        //        $output['tfoot']=$tfoot;
+        return $output;
+    }
+
+    public function clearInvoiceItems()
+    {
+        if(Cart::count()>0)
+        {
+            $clearlist = Cart::content()->where('options.order_id',0);
+            foreach($clearlist as $rmv)
+            {
+                Cart::remove($rmv->rowId);
+            }  
+        }
+        return "cleared";
+    }
+
+    public function findProList()
+    {
+        $data=Product::where('user_id',Auth::guard('web')->user()->id)
+                        ->orderBy('product_id')->get();
+
+        return response()->json($data);
+    }
+
+    public function setProDetail(Request $request)
+    {
+        $data=Product::where('product_id',$request->id)->first();
+        return response()->json($data);
+    }
+
+    public function saveInv(Request $request) 
+    {
+        $inv = new Invoice;
+        $inv->cust_id = $request->cust_id;
+        $inv->invoice_code = $request->invoice_id;
+        $inv->email = $request->email;
+        $inv->bill_address = $request->bill_address;
+        $inv->terms = $request->terms;
+        $inv->invoice_date = $request->invoice_date;
+        $inv->due_date = $request->due_date;
+        $inv->msg_invoice = $request->msg_invoice;
+        $inv->msg_state = $request->msg_state;
+        $image=$request->file('attach_file');
+        if($image)
+        {
+            $image_name=str_random(3).$request->name;
+            $ext=strtolower($image->getClientOriginalExtension());
+            $image_full_name=$image_name.'.'.$ext;
+            $upload_path='public/img/invoice_file/';
+            $file_url=$upload_path.$image_full_name;
+            $success=$image->move($upload_path,$image_full_name);
+            if($success)
+            {
+                $inv->attach_file = $file_url;
+            }
+        }
+        $inv->save();
+        $invoice_id = $inv->invoice_id;
+
+
+        
+        $count = count($request['productid']);
+        $pro = array();
+        for($i=0; $i<$count; $i++)
+        {
+            if(!empty($request['productid'][$i]))
+            {
+                array_push($pro, array(
+               'invoice_id' => $invoice_id,
+               'product_id' => $request['productid'][$i], 
+               'description' => $request['description'][$i], 
+               'quantity' => $request['quantity'][$i], 
+               'rate' => $request['rate'][$i],
+               'discount' => $request['discount'][$i],
+               'account_id' => $request['accid'][$i],
+               'tax' => $request['tax'][$i],
+               'total' => $request['amount'][$i],
+              ));
+            }
+        }
+        Invdetail::insert($pro);
+
+        //
+        //        if($invoice_id < 10)
+        //        {
+        //            $invoice_code = "INV0000".$invoice_id ;
+        //        }else if ($invoice_id < 100)
+        //        {
+        //            $invoice_code = "INV000".$invoice_id;
+        //        } else if ($invoice_id < 1000)
+        //        {
+        //            $invoice_code = "INV00".$invoice_id;
+        //        } else {
+        //            $invoice_code = "INV0".$invoice_id;
+        //        }
+        //        $updateinv = Invoice::find($invoice_id);
+        //        $updateinv->invoice_code=$invoice_code;
+        //        $updateinv->save();
+        $notification = array(
+            'message' => 'Invoice Created Successfully',
+            'type' => 'success'
+        );
+        return Response::json($notification);
+    }
+
+    public function countInvoice(Request $request)
+    {
+        $data= array();
+        $data["due"]=Invdetail::join('invoices','invdetails.invoice_id','=','invoices.invoice_id')
+        ->where('invoices.status',0)->sum('invdetails.total');
+        $data["paid"]=Invdetail::join('invoices','invdetails.invoice_id','=','invoices.invoice_id')
+        ->where('invoices.status',1)->sum('invdetails.total');
+        return $data;
+    }
+    
+    public function generateInvNo()
+    {
+        $list = array();
+        $number = Setup::where('id',1)->value('invoice_start');
+        $exists = Invoice::where('invoice_code',$number)->exists();
+        $all = Invoice::select('invoice_code')->get();
+        foreach ($all as $code){
+            array_push($list, $code->invoice_code);
+        }
+        if($exists){
+            while(in_array($number, $list)){
+               $number++; 
+            }
+        }
+        return $number;
+    }
+}

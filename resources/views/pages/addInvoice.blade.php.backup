@@ -1,0 +1,1505 @@
+@extends('master')
+@section('title')
+    {{-- {{$title}} --}}
+@endsection
+@section('stylesheet')
+    {{-- <link rel="stylesheet" type="text/css" href="{{asset('public/css/datatables.min.css')}}"> --}}
+    {{-- <link href="{{asset('public/css/bootstrap-fileupload.css')}}" rel="stylesheet" /> --}}
+@endsection
+@section('content')
+
+    <style>
+
+        .table.inv_table td {
+            padding: 0.2rem 0.2rem !important;
+        }
+
+        .inv_table .select2-selection--single {
+            height: 31px !important;
+            padding: 0px;
+        }
+
+        .inv_table .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 3px !important;
+            right: 6px !important;
+        }
+
+        .w-12 {
+            width: 12%;
+        }
+
+        /* .w-12 .select2.select2-container.select2-container--default.select2-container--above.select2-container--focus {
+            width: 143.583px;
+        }
+
+        .w-12 .select2-results__message {
+            font-size: 11px;
+        }
+
+        .w-12 .select2-container--classic .select2-results__options .select2-results__option[aria-selected="true"], .select2-container--default .select2-results__options .select2-results__option[aria-selected="true"] {
+           font-size: 11px;
+        } */
+
+        .form-group {
+            margin-bottom: .5rem !important;
+        }
+        .form-group-sm {
+            margin-bottom: .5rem;
+            margin-top: .5rem;
+        }
+
+        .w-12 .form-control-sm {
+            padding-left: .1rem;
+        }
+
+        .form-control-sm {
+            padding: 0 2px 2px 3px;
+            height: 30px;
+        }
+
+        .w-12 select,
+        .tax-ex select {
+            height: 31px;
+        }
+
+        .mt-9 {
+            margin-top: .9rem;
+        }
+        
+
+        .w-12 .select2-selection__arrow b {
+            border-color: #888 transparent transparent transparent;
+            border-style: solid;
+            border-width: 5px 4px 0 4px;
+            height: 0;
+            left: 12%;
+            margin-left: -4px;
+            margin-top: 13px;
+            position: absolute;
+            top: 50%;
+            width: 0;
+        }
+
+        .w-12.account .select2-selection__arrow b {
+            left: 68%;
+        }
+
+        
+        .fs-9 {
+            font-size: 9px;
+        } 
+
+        .btn-sm, .btn-group-sm > .btn {
+            padding: 0.1rem 0.2rem;
+            font-size: 0.445rem;
+            line-height: 1;
+            border-radius: 0.21rem;
+        }
+
+        .hide {
+            display: none;
+        }
+            
+    </style>
+
+    <div class="content-header row">
+        <div class="content-header-left col-md-6 col-12 mb-2">
+            <h3 class="content-header-title mb-0">Add Invoice</h3>
+            <div class="row breadcrumbs-top">
+        
+            </div>
+        </div>
+        <div class="content-header-right text-md-right col-md-6 col-12">
+            <div class="form-group">
+                {{-- <a class="btn-icon btn btn-secondary btn-round" ><i class="ft-bell"></i> </a> --}}
+                {{-- <a href="#" class="btn-icon btn btn-secondary btn-round btn-success" data-toggle="modal" data-target="#xlarge"><i class="fa fa-product-hunt"></i> Add New</a> --}}
+            </div>
+        </div>
+    </div>
+
+
+
+    {{-- <section id="minimal-statistics">
+    
+
+        <div class="row">
+            <div class="col-xl-3 col-lg-6 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3 class="danger"> <span class="tlpro"></span></h3>
+                                    <span>Total Product</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="icon-graph danger font-large-2 float-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3 class="success">156</h3>
+                                    <span>Total Services</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fa fa-handshake-o success font-large-2 float-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3 class="primary">1</h3>
+                                    <span> Low Stock</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fa fa-warning primary font-large-2 float-right"></i>
+                                </div>
+                            </div>
+                            <!--<div class="progress mt-1 mb-0" style="height: 7px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <div class="media d-flex">
+                                <div class="media-body text-left">
+                                    <h3 class="warning">156</h3>
+                                    <span>Out Of Stock</span>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fa fa-times-circle-o warning font-large-2 float-right"></i>
+                                </div>
+                            </div>
+                                <!--<div class="progress mt-1 mb-0" style="height: 7px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> --}}
+
+
+    {{-- 
+    <div class="modal fade text-left" id="xlarge" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <label class="modal-title text-text-bold-600 text-center" id="myModalLabel33">Product Info</label>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+                <form action="{{route('save.product')}}" method="post" id="addProForm" enctype="multipart/form-data">
+                    <div class="modal-body">                                          
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" name="p_name" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>SKU</label>
+                                    <input type="text" name="sku" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Product Image</label>
+                                    <div class="controls">
+                                        <div data-provides="fileupload" class="fileupload fileupload-new">
+                                            <div style="width: 180px; height: 130px; line-height: 20px;" class="fileupload-new thumbnail">
+                                                <img alt="" src="{{asset('public/img/empty.jpg')}}">
+                                            </div>
+                                            <div style="width:180px; height: 130px; line-height: 20px;" class="fileupload-preview fileupload-exists thumbnail"></div>
+                                            <div>
+                                                <span class="btn btn-sm bg-primary btn-file"><span class="fileupload-new">Select image</span>
+                                                <span class="fileupload-exists">Change</span>
+                                                <input type="file" name="p_image" class="default"></span>
+                                                <a data-dismiss="fileupload" class="btn btn-sm bg-danger fileupload-exists" href="#">Remove</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sales Description</label>
+                                    <textarea name="sales_des" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Type</label>
+                                        <select name="type" class="select2 form-control">
+                                            <option value="1">Inventory</option>
+                                                <option value="2">Non-Inventory</option>
+                                                <option value="3">Service</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Sales Price</label>
+                                    <fieldset class="form-group position-relative has-icon-left">
+                                    <input type="text" name="sales_price" class="form-control mb-1" id="iconLeft10" placeholder="Enter sale price">
+                                    <div class="form-control-position">
+                                        <i class="fa fa-dollar warning"></i>
+                                    </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Cost</label>
+                                    <fieldset class="form-group position-relative has-icon-left">
+                                    <input type="text" name="cost" class="form-control mb-1" id="iconLeft10" placeholder="Enter sale price">
+                                    <div class="form-control-position">
+                                        <i class="fa fa-dollar warning"></i>
+                                    </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Initial Quantity </label>
+                                    <input type="text" name="q_on_hand" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Reorder point</label>
+                                    <input type="text" name="reorder_point" class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Asset Account</label>
+                                        <select name="asset_account" class="select2 form-control">
+                                                <option value="1">Asset 1</option>
+                                                <option value="2">Asset 2</option>
+                                                <option value="3">Asset 3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{csrf_field()}}
+                        <div class="row">
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Income Account</label>
+                                        <select name="income_account" class="select2 form-control">
+                                                <option value="1">Income Account 1</option>
+                                                <option value="2">Income Account 2</option>
+                                                <option value="3">Income Account 3</option>
+                                                <option value="4">Income Account 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Expense Account</label>
+                                        <select name="expense_account" class="select2 form-control">
+                                                <option value="1">Expense Account 1</option>
+                                                <option value="2">Expense Account 2</option>
+                                                <option value="3">Expense Account 3</option>
+                                                <option value="4">Expense Account 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <div class="modal-footer">
+                    <input type="reset" class="btn btn-outline-secondary btn-md" data-dismiss="modal" value="close">
+                    <input type="submit" class="btn btn-outline-primary btn-md" value="Save">
+                </div>
+            </form>                                                  
+            </div>
+        </div>
+    </div> --}}
+
+
+    <section id="">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">New Invoice</h4>
+                        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+                        <div class="heading-elements">
+                            <ul class="list-inline mb-0">
+                                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                                {{-- <li><a data-action="reload"><i class="ft-rotate-cw"></i></a></li>
+                                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                                <li><a data-action="close"><i class="ft-x"></i></a></li> --}}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-content collapse show">
+                        <div class="card-body card-dashboard">
+
+                            <form action="{{route('store.invoice')}}" method="POST" enctype="multipart/form-data">
+                                @csrf
+
+                                <div class="row">
+
+                                    @php
+                                        $invoice_count = DB::table('invoices')->count();
+
+                                        $invoice_num = $invoice_count +1;
+                                    @endphp
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Invoice ID</label>
+                                            <input type="text" name="invoice_code" readonly="" value="{{$invoice_num}}" id="invoice_id" class="form-control invoice_number">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        
+                                        <div class="form-group">
+                                            <label>Customer</label>
+                                            <select name="cust_id" class="select2 form-control customer_change">
+                                                <option value="">-select-</option>
+                                                @foreach ($customers as $cus)
+                                                    <option value="{{$cus->cust_id}}">{{ $cus->display_name }}</option>
+                                                @endforeach
+                                            </select>
+                                            
+                                        </div>
+                                       
+                                    </div> 
+
+                                    <div class="col-md-6 res_customer">
+
+                                    </div>
+
+                                    {{-- <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Email</label>
+                                            <input type="email" name="email" id="email" class="form-control res_customer" placeholder="">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Address</label>
+                                            <textarea name="address" id="address" class="form-control" rows="1"></textarea>
+                                        </div>
+                                    </div> --}}
+
+                                    <div class="col-md-3">
+                                        
+                                        <div class="form-group">
+                                            <label>Terms</label>
+                                            <select name="terms" id="terms" class="select2 form-control">
+                                                <option value="">-select-</option>
+                                                <option value="Due On Receipt">Due On Receipt</option>
+                                                <option value="Net 15">Net 15</option>
+                                            </select>
+                                            
+                                        </div>
+                                       
+                                    </div> 
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Invoice Date</label>
+                                            <input type="date" name="invoice_date" id="invoice_date" class="form-control" placeholder="">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Due Date</label>
+                                            <input type="date" name="due_date" id="due_date" class="form-control" placeholder="">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="reference">Reference</label>
+                                            <input type="text" name="reference" id="reference" class="form-control" placeholder="">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <hr>
+                                        <br>
+                                    </div>
+                   
+
+                                    <div class="no_padding col-md-6" style="margin-bottom: 1.5em;">
+                                        <div class="form-group form-group-sm">
+                                        
+                                            <button type="button" value="1" class="bill_remove_field btn btn-danger btn-xs" style="padding: 5px 10px 5px 10px;"><i class="fa fa-minus"></i></button>
+                                            
+                                            <button type="button" value="1" class="bill_add_more_field btn btn-xs btn-primary" style="padding: 5px 10px 5px 10px;"><i class="fa fa-plus"></i></button>
+                                        
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-3 text-right">
+                                        <label for="">Amounts are</label>
+                                    </div>
+
+                                    <div class="col-md-3 text-right tax-ex">
+
+                                        <select name="tax_ein" id="" class="form-control form-control-sm taxaxin">
+                                            <option value="1">Tax Exclusive</option>
+                                            <option value="2">Tax Inclusive</option>
+                                            <option value="3">No Tax</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="table-bordered table-striped ">
+                                            <table class="table inv_table table-responsive">
+                                                <thead>
+                                                    <tr>
+                                                        <th>product</th>
+                                                        {{-- <th>SKU</th> --}}
+                                                        <th>Description</th>
+                                                        <th>Quantity</th>
+                                                        <th>Rate</th>
+                                                        <th>Discount %</th>
+                                                        <th>Account</th>
+                                                        <th >Tax Rate <button type="button" class="btn-sm taxrate" value="1"> <i class="fa fa-plus fs-9"></i> </button></th>
+                                                        <th class="taxamount hide">Tax Amount <button type="button" value="0" class="btn-sm remove_taxamount"> <i class="fa fa-minus fs-9"></i> </button></th>
+                                                        <th>Amount</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                    <tr class="content_data">
+                                                        <td class="w-12">
+                                                            <div class="form-group form-group-sm">
+                                                                <select name="product[]" class="form-control form-control-sm catch_product">
+                                                                    <option value=""></option>
+                                                                    <button> <i class="fa fa-plus"></i>Add New Item</button>
+                                                                    {{-- <option value=""></option> --}}
+
+                                                                    @foreach ($products as $p)
+                                                                        <option value="{{$p->product_id}}">{{$p->item_name}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </td>
+                                                        {{-- <td>
+                                                            <div class="form-group form-group-sm">
+                                                                <input type="text" name="sku[]" class="form-control form-control-sm return_sku">
+                                                            </div>
+                                                        </td> --}}
+                                                        <td>
+                                                            <div class="form-group form-group-sm">
+                                                                <input type="text" name="description[]" class="form-control form-control-sm">
+                                                            </div>
+                                                        </td>
+                                                        <td> 
+                                                            
+                                                            <div class="form-group form-group-sm">
+                                                               <input type="number" name="quantity[]" min="0" step="0.01" title="Numbers Only" class="form-control form-control-sm quantity">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group form-group-sm">
+                                                                <input type="number" name="rate[]" min="0" step="0.01" class="form-control form-control-sm rate">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group form-group-sm">
+                                                                <input type="number" name="discount[]" min="0" step="0.01" class="form-control form-control-sm discount" value="0">
+                                                            </div>
+                                                        </td>
+                                                        <td class="w-12 account">
+                                                            <div class="form-group form-group-sm">
+                                                                <select name="account[]" class="form-control form-control-sm catch_account">
+                                                                    <option value="0" disabled selected>Select Account</option>
+                                                                    @foreach ($accounts as $ac)
+                                                                        <option value="{{ $ac->ac_id }}">
+                                                                            {{ ($ac->ac_type) ? $ac->ac_number .' - '. $ac->ac_type : $ac->ac_number}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </td>
+                                                        <td class="w-12">
+                                                            <div class="form-group form-group-sm">
+                                                                <select name="tax[]" class="form-control form-control-sm notax">
+                                                                    <option value="0" disabled selected>Select Tax</option>
+                                                                    
+                                                                    @foreach ($tax_rates as $tax_rates)
+                                                                        <option value="{{ $tax_rates->tax_amount }}">
+                                                                            {{ $tax_rates->tax_name.' ('.$tax_rates->tax_amount.' %)' }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                {{-- <input type="text" name="" class="form-control form-control-sm notax">
+                                                                <input type="hidden" name="tax[]" class="form-control form-control-sm onlytax"> --}}
+                                                            </div>
+                                                        </td>
+                                                        <td class="taxamount hide">
+                                                            <div class="form-group form-group-sm">
+                                                                <input type="number" name="tax_amount[]" min="0" value="0" step="0.01" class="form-control form-control-sm tax_amount">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="form-group form-group-sm">
+                                                                <input type="text" name="amount[]" class="form-control form-control-sm amount" readonly>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    
+
+                                                    <tr class="field_to_add_before"></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                     
+
+                                    {{-- <div class="col-md-12">
+
+                                        <div class="row">
+
+                                            <div class="col-md-2 pr-0">
+                                                <div class="form-group-sm">
+
+                                                    <select name="product" id="" class="form-control form-control-sm">
+                                                        <option value=""></option>
+                                                    </select>
+                                                    
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6 content_data">
+
+                                                <div class="row ">
+
+                                                    <div class="form-group form-group-sm col-md-8 px-0">
+
+                                                        <input type="text" class="form-control form-control-sm" name="voucher_text[]" placeholder="" required>
+
+                                                    </div>
+                                                    
+                                                    <div class="form-group form-group-sm col-md-3 pl-0">
+                                                        
+                                                        <input name="amount[]" type="number" min="0.01" step="0.01" title="Numbers Only" class="enable_field form-control form-control-sm text-center" placeholder="Amount" required>
+                                                        
+                                                    </div>
+
+                                                
+                                                    <div class="col-md-12">
+
+                                                        <input type="hidden" class="upTotalPrice upTotalPrice_1">
+                                                        
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="field_to_add_before"></div>
+
+                                        </div>
+
+                                        <br>
+
+                                        <hr>
+                                    </div> --}}
+
+                                    
+                                    <div class="col-md-12">
+
+                                        <br>
+
+                                        <div class="row">
+                                            <div class="col-md-10 text-right">
+                                                 <label class="mt-9">Subtotal</label>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group-sm text-center">
+                                                    
+                                                    <input type="text" class="sub_total form-control form-control-sm text-center" value="0" placeholder="Total" disabled=""> 
+                                                    
+                                                    <input type="hidden" name="sub_total" class="sub_total" value="0">
+                                                    
+                                                    <br>
+                                                </div>
+                                            </div>
+                                            <div class="more_tax_show col-md-12" style="padding:0;">  
+                                                
+                                            </div>
+                                            {{-- <div class="col-md-10 text-right">
+                                                 <label class="mt-9 vat">Sum of All Tax</label>
+                                            </div>
+                                            <div class="col-md-2 vat">
+                                                <div class="form-group-sm text-center">
+                                                    
+                                                    <input type="text" class="vat_total form-control form-control-sm text-center" value="0" placeholder="Total" disabled="">
+                                                    <input type="hidden" name="vat_total" class="vat_total"> 
+                                                    
+                                                    <br>
+                                                </div>
+                                            </div> --}}
+                                            
+                                            <div class="col-md-10 text-right include_adjustment hide pull-left">
+                                                <label class="mt-9">Includes Adjustments to Tax</label>
+                                            </div>
+                                            <div class="col-md-2 include_adjustment hide pull-right">
+                                                <div class="form-group-sm text-center">
+                                                    
+                                                    <input type="text" name="adjustment_tax" class="adjustment_tax form-control form-control-sm text-center" min="0" value="0" placeholder="Total"> 
+                                                    
+                                                    
+                                                    <br>
+                                                </div>
+                                            </div>
+                                              
+                                            <div class="col-md-10 text-right pull-left">
+                                                <label class="mt-9"><b>Total</b></label>
+                                            </div>
+                                            <div class="col-md-2 pull-right">
+                                                <div class="form-group-sm text-center">
+                                                    
+                                                    <input type="text" class="final_total form-control form-control-sm text-center" value="0" placeholder="Total" disabled=""> 
+                                                    
+                                                    <input type="hidden" name="final_total" class="final_total" value="0">
+                                                    
+                                                    <br>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    
+                                </div>
+
+                                <br>
+                                <div class="col-12 p-0 text-center">
+                                    {{-- <button class="btn bg-teal" type="submit"> <span class=" white">Save Now !</span> 
+                                    </button> --}}
+                                    <button class="btn btn-outline-success btn-min-width" type="submit"> Save Now !
+                                    </button>
+                                    
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+@endsection
+@section('script')
+@endsection
+
+
+@push('script')
+    <script> 
+    
+        $(document).ready( function () {
+
+            $(document).on('change', '.customer_change', function(){
+
+                var val = $(this).val();
+
+                $.ajax({
+
+                    url:"{{route('chech.customerInfo')}}",
+
+                    method:"GET",
+
+                    data:{val:val},
+
+                    success: function(data)
+                    {
+                        // .html(data);
+                        $('.res_customer').html(data);
+                        $('.res_customer').val(data);
+                    }
+
+                });
+
+            });
+            
+
+        });
+
+        $(document).ready(function () {
+            
+            var content_data = $('.content_data').html();
+
+            var val = $('.catch_account').val();
+
+            var accounttax = $('.catch_account').parent().parent().next().find('.notax');
+
+            var onlytax = $('.catch_account').parent().parent().next().find('.onlytax');
+
+            // $.ajax({
+
+            //     url:"{{route('chech.actax')}}",
+
+            //     method:"GET",
+
+            //     data:{val:val},
+
+            //     success: function(data)
+            //     {
+            //         accounttax.val(data);
+            //         accounttax.html(data);
+            //     }
+
+            // });
+            
+            
+
+            $(document).on('click', '.bill_add_more_field', function () {
+
+                var val = parseInt($(this).val());
+
+                val = val + 1;
+
+                $(this).val(val);
+
+                $(".bill_remove_field").val(val);
+
+                $('<tr class="delField_' + val + ' mt-4 ">' + content_data + '</tr>').insertBefore(".field_to_add_before");
+
+                var taxamount = $('.remove_taxamount').val();
+                var taxaxin = $('.taxaxin').val();
+                if (taxamount == 0) {
+                   reCalculate ();
+                }
+
+            });
+
+            $(document).on('click', '.bill_remove_field', function () {
+
+                var delval = parseInt($(this).val());
+
+                if (delval > 1) {
+
+                    $(this).val(delval - 1);
+
+                    $(".bill_add_more_field").val(delval - 1);
+
+                    $(".delField_" + delval).remove();
+
+                }
+
+                fullCalculation();
+
+            });
+
+            $(document).on('click', '.taxrate', function () {
+
+                var val = $(this).val();
+                var val2 = 0;
+                if ( val == 1 ) {
+                    $(".taxamount").removeClass('hide');
+                    $(".include_adjustment").removeClass('hide');
+                    $(".taxrate").addClass('hide');
+                    $(".taxrate").val(val2);
+                }
+
+            });
+
+            $(document).on('change', '.taxaxin', function () { reCalculate(); fullCalculation(); });
+            
+
+            $(document).on('click', '.remove_taxamount', function () {
+
+                var val = $('.remove_taxamount').val();
+                var val2 = 1;
+
+                if ( val == 0 ) {
+                    $(".taxrate").val(val2);
+                    $(".taxamount").addClass('hide');
+                    $(".include_adjustment").addClass('hide');
+                    $(".taxrate").removeClass('hide');
+                }
+            });
+            
+            // Product 
+            $(document).on('change', '.catch_product', function () {
+
+                var val = $(this).val();
+
+                var skuid = $(this).parent().parent().next().find('.return_sku');
+
+                $.ajax({
+
+                    url:"{{route('catch.product')}}",
+
+                    method:"GET",
+
+                    data:{val:val},
+
+                    success: function(data)
+                    {
+                        skuid.val(data);
+                    }
+                });
+            });
+
+            // Account
+            $(document).on('change', '.catch_account', function () {
+
+                var val = $(this).val();
+
+                var accounttax = $(this).parent().parent().next().find('.notax');
+
+                var txt_amnt = $(this).parent().parent().next().next().find('.tax_amount');
+
+                var onlytax = $(this).parent().parent().next().find('.onlytax');
+
+
+                var discount = $(this).parent().parent().prev().find('.discount').val();
+                var rate = $(this).parent().parent().prev().prev().find('.rate').val();
+                var quantity = $(this).parent().parent().prev().prev().prev().find('.quantity').val();
+
+                
+                var tax_rate_percentage = 0;
+
+                $.ajax({
+
+                    url:"{{route('chech.actax')}}",
+
+                    method:"GET",
+
+                    data:{val:val},
+
+                    success: function(data)
+                    {
+                        // accounttax.val(data);
+
+                        var options = data.split('__');
+
+                        accounttax.html(options[0]);
+
+                        tax_rate_percentage += options[1];
+
+                        // console.log(options[1]);
+                        // console.log(options);
+
+                        if(discount*1 > 0 && discount*1 != '' && discount <= 100){
+
+                        }else{
+
+                            discount = 0;
+                        }
+
+                        
+                        if(quantity*1 > 0 && rate*1 > 0){
+
+                            var total = Math.round(((quantity*rate) * 1) * 100) / 100;
+
+                            var after_dis = Math.round(((total - (total * discount)/100) * 1) * 100) / 100;
+
+                            var tx_amnt = Math.round((((after_dis * tax_rate_percentage) / 100) * 1) * 100) / 100;
+
+                            txt_amnt.val(tx_amnt);
+                            
+                        }else{
+
+                            txt_amnt.val(0);
+
+                        }
+
+
+                        fullCalculation(); 
+
+                    }
+
+                });
+
+
+                // console.log(tax_rate_percentage);
+
+
+
+                
+                
+
+
+                // $.ajax({
+
+                //     url:"{{route('chech.onlytax')}}",
+
+                //     method:"GET",
+
+                //     data:{val:val},
+
+                //     success: function(data)
+                //     {
+                //         onlytax.val(data);
+                //     }
+
+                // });
+
+                
+                
+
+            });
+
+            // Invoice calculateion start
+            $(document).on('keyup change', '.quantity', function () {
+
+                fullCalculation(); 
+                
+            });
+
+            $(document).on('keyup change', '.rate', function () {
+
+                fullCalculation();
+            });
+
+            $(document).on('keyup change', '.discount', function () {
+
+                fullCalculation();
+            });
+
+            $(document).on('keyup change', '.notax', function () {
+                
+
+                var discount = $(this).parent().parent().prev().prev().find('.discount').val();
+                var rate = $(this).parent().parent().prev().prev().prev().find('.rate').val();
+                var quantity = $(this).parent().parent().prev().prev().prev().prev().find('.quantity').val();
+
+                
+                var txt_amnt = $(this).parent().parent().next().find('.tax_amount');
+
+                tax_rate_percentage = $(this).val()*1;
+
+                if(discount*1 > 0 && discount*1 != '' && discount <= 100){
+
+                }else{
+
+                    discount = 0;
+                }
+
+                
+                if(quantity*1 > 0 && rate*1 > 0){
+
+                    var total = Math.round(((quantity*rate) * 1) * 100) / 100;
+
+                    var after_dis = Math.round(((total - (total * discount)/100) * 1) * 100) / 100;
+
+                    var tx_amnt = Math.round((((after_dis * tax_rate_percentage) / 100) * 1) * 100) / 100;
+
+                    txt_amnt.val(tx_amnt);
+                    
+                }else{
+
+                    txt_amnt.val(0);
+
+                }
+
+
+                fullCalculation();
+
+
+            });
+
+            $(document).on('keyup change', '.tax_amount', function () {
+
+                // var tax_amount = Math.round(($(this).val()) * 100) / 100;
+
+                fullCalculation();
+            });
+
+            $(document).on('focusout', '.adjustment_tax', function () {
+
+                var adjustment = $(this).val();
+
+                if(adjustment >= 0){
+
+                    var quantity = $(".quantity");
+
+                    var tax_amount = $(".tax_amount");
+
+                    var quantity = $(".quantity");
+                    var rate = $(".rate");
+                    var discount = $(".discount");
+                    var tax = $(".notax");
+
+                    var tot_qty = 0;
+
+                    for (var i = 0; i < quantity.length; i++) {
+
+                        var qty = Math.round((quantity[i]['value'] * 1) * 100) / 100;
+
+                        tot_qty += qty;
+                    }
+
+                    var fraction = Math.round((adjustment / tot_qty * 1) * 100) / 100;
+
+                    console.log(fraction);
+
+                    for (var i = 0; i < quantity.length; i++) {
+
+                        var qty = Math.round((quantity[i]['value'] * 1) * 100) / 100;
+                    
+                        var rat = Math.round((rate[i]['value'] * 1) * 100) / 100;
+
+                        var dis = Math.round((discount[i]['value'] * 1) * 100) / 100;
+
+                        
+                        if(dis*1 > 0 && dis*1 != '' && dis <= 100){
+
+                        }else{
+                            dis = 0;
+                        }
+
+                        
+                        if(qty*1 > 0 && rat*1 > 0){
+
+                            var total = Math.round(((qty*rat) * 1) * 100) / 100;
+
+                            var after_dis = Math.round(((total - (total * dis)/100) * 1) * 100) / 100;
+
+                            var tax_rate_percentage = Math.round((tax[i]['value'] * 1) * 100) / 100;
+
+                            var orginal_tx_amnt = Math.round((((after_dis * tax_rate_percentage) / 100) * 1) * 100) / 100;
+                        }
+
+                        var tx_amnt = orginal_tx_amnt;
+                        
+                        var tt = fraction*qty;
+                        
+                        var out = tx_amnt + tt;
+
+                        tax_amount[i].value = out;
+
+                    }
+                    
+
+                    fullCalculation();
+
+                }
+
+                
+            });
+
+        });
+
+
+        function reCalculate () {
+
+            // // Quantity Calculation
+            // var quantityArray = $(".quantity");
+
+            // var quantity = 0;
+
+            // for (var i = 0; i < quantityArray.length; i++) {
+            //     quantity += Math.round(($(quantityArray[i]).val() * 1) * 100) / 100;
+            // }
+            // quantity = Math.round(quantity * 100) / 100;
+
+
+            // // Rate Calculation
+            // var rateArray = $(".rate");
+            // var rateqty = 0;
+
+            // for (var i = 0; i < rateArray.length; i++) {
+            //     rateqty += Math.round(($(rateArray[i]).val() * 1) * 100) / 100;
+            // }
+            // rateqty = Math.round(rateqty * 100) / 100;
+
+            
+
+
+            // // Discount calculation
+            // var discountArray = $(".discount");
+            // var disqty = 0;
+
+            // for (var i = 0; i < discountArray.length; i++) {
+            //     disqty += Math.round(($(discountArray[i]).val() * 1) * 100) / 100;
+            // }
+            // disqty = Math.round(disqty * 100) / 100;
+   
+            // // Tax calculation
+            // var notaxArray = $(".notax");
+            // var notaxqty = 0;
+
+            // for (var i = 0; i < notaxArray.length; i++) {
+            //     notaxqty += Math.round(($(notaxArray[i]).val() * 1) * 100) / 100;
+            // }
+            // notaxqty = Math.round(notaxqty * 100) / 100;
+
+
+            
+
+            // if ( quantity > 0 || quantity == 0 && rateqty > 0 || rateqty == 0 && disqty > 0 || disqty == 0 && notaxqty > 0 || notaxqty == 0) {
+
+            //     var multipal = quantity * rateqty;
+
+            //     multipal = Math.round((multipal) * 100) / 100;
+
+
+            //     var dis = Math.round((multipal * (disqty/100)) * 100) / 100;
+            //     dis = Math.round((dis) * 100) / 100;
+
+            //     var after_dis = Math.round((multipal - dis) * 100) / 100;
+            //     after_dis = Math.round((after_dis) * 100) / 100;
+
+
+            //     var tax = Math.round((after_dis * (notaxqty/100)) * 100) / 100;
+
+            //     tax = Math.round((tax) * 100) / 100;
+
+
+
+            //     var after_tax = Math.round((after_dis + tax) * 100) / 100;
+
+            //     after_tax = Math.round((after_tax) * 100) / 100;
+
+            //     // after_tax.val(after_tax);
+
+            //     // after_tax = $(this).parent().parent().next().find('.amount');
+
+            //     // $('.tax_amount').val(tax);
+
+            // }
+
+
+            // $('.sub_total').val(cal_dis);
+
+
+            var taxaxin = $('.taxaxin').val();
+            
+
+            if ( taxaxin == 1 ) {
+
+                if($(".taxrate").val() == 0){
+                    
+                    $(".taxrate").addClass('hide');
+                    $(".taxamount").removeClass('hide');
+                    $(".include_adjustment").removeClass('hide');
+                    
+
+                }else{
+
+                    $(".taxrate").removeClass('hide');
+                    $(".taxamount").addClass('hide');
+                    
+                }
+
+                $(".vat").removeClass('hide');
+                $(".notax").prop("disabled", false);
+                $(".taxrate").prop("disabled", false);
+
+            } else if ( taxaxin == 2 ) {
+
+                $(".taxrate").addClass('hide');
+                $(".taxamount").addClass('hide');
+                $(".include_adjustment").addClass('hide');
+                $(".notax").prop("disabled", false);
+                $(".vat").removeClass('hide');
+                
+            } else if ( taxaxin == 3 ) {
+
+                $(".notax").attr("disabled", true);
+                $(".taxrate").attr("disabled", true);
+                $(".taxamount").addClass('hide');
+                $(".include_adjustment").addClass('hide');
+                $(".vat").addClass('hide');
+            }
+
+        }
+
+
+        
+        function fullCalculation () {
+
+            // Quantity Calculation
+            var quantity = $(".quantity");
+            var rate = $(".rate");
+            var discount = $(".discount");
+            var tax = $(".notax");
+            var tax_amount = $(".tax_amount");
+            var amount = $(".amount");
+
+            // console.log(quantity[0]['value']);
+
+            var subtotal = 0;
+
+            var total_tax_amnt = 0;
+
+            var final_total = 0;
+
+            var total_orginal_tax_amnt = 0;
+
+            var tax_rate_percentage = 0;
+
+            var more_tax_show = '';
+
+
+            var tax_type = $(".taxaxin").val();
+
+
+            if(tax_type == 1){
+
+                for (var i = 0; i < quantity.length; i++) {
+
+                    var qty = Math.round((quantity[i]['value'] * 1) * 100) / 100;
+                    
+                    var rat = Math.round((rate[i]['value'] * 1) * 100) / 100;
+
+                    var dis = Math.round((discount[i]['value'] * 1) * 100) / 100;
+
+
+                    var tax_rate_percentage = Math.round((tax[i]['value'] * 1) * 100) / 100;
+                    
+
+                    var tx_amnt =  Math.round((tax_amount[i]['value'] * 1) * 100) / 100;
+
+
+                    if(dis*1 > 0 && dis*1 != '' && dis <= 100){
+
+                    }else{
+                        dis = 0;
+                    }
+
+                    if(tx_amnt*1 > 0 && tx_amnt*1 != ''){
+
+                    }else{
+
+                        tx_amnt = 0
+                    }
+                    
+                    if(qty*1 > 0 && rat*1 > 0){
+
+                        var total = Math.round(((qty*rat) * 1) * 100) / 100;
+
+                        var after_dis = Math.round(((total - (total * dis)/100) * 1) * 100) / 100;
+
+                        var orginal_tx_amnt = Math.round((((after_dis * tax_rate_percentage) / 100) * 1) * 100) / 100;
+
+                        var no = i + 1;
+
+                        more_tax_show += "<div class='col-md-10 text-right pull-left'><label class='mt-9'>"+no+". Tax "+tax_rate_percentage+" %</label></div><div class='col-md-2 pull-right'><div class='form-group-sm text-center'><input type='text' value='"+tx_amnt+"' class='form-control form-control-sm text-center' disabled></div></div>";
+
+                        // var tot_amount = Math.round(((tx_amnt + after_dis) * 1) * 100) / 100;
+
+                        // tax_amount[i].value = tx_amnt;
+
+                        total_orginal_tax_amnt += orginal_tx_amnt;
+
+                        total_tax_amnt += tx_amnt;
+
+                        amount[i].value = after_dis;
+
+                        subtotal = subtotal + amount[i]['value']*1;
+
+
+                    }else{
+
+                        discount[i].value = 0;
+                        tax_amount[i].value = 0;
+                        amount[i].value = 0;
+                        // quantity[i].value = 0;
+                        // rate[i].value = 0;
+
+                    }
+
+                    // subtotal = subtotal + amount[i]['value']*1;
+
+                }
+
+                $('.sub_total').val(subtotal);
+
+                $('.more_tax_show').html(more_tax_show);
+
+                final_total = Math.round(((subtotal + total_tax_amnt) * 1) * 100) / 100;
+
+                var adjustment_to_tx = Math.round(((total_tax_amnt - total_orginal_tax_amnt) * 1) * 100) / 100;
+
+
+                $('.vat_total').val(total_tax_amnt);
+
+                $('.adjustment_tax').val(adjustment_to_tx);
+
+                $('.final_total').val(final_total);
+
+            }
+
+
+            if(tax_type == 2){
+
+                for (var i = 0; i < quantity.length; i++) {
+
+                    var qty = Math.round((quantity[i]['value'] * 1) * 100) / 100;
+                    
+                    var rat = Math.round((rate[i]['value'] * 1) * 100) / 100;
+
+                    var dis = Math.round((discount[i]['value'] * 1) * 100) / 100;
+
+
+                    var tax_rate_percentage = Math.round((tax[i]['value'] * 1) * 100) / 100;
+                    
+
+
+
+                    if(dis*1 > 0 && dis*1 != '' && dis <= 100){
+
+                    }else{
+                        dis = 0;
+                    }
+
+                    
+
+                    var tx_amnt = 0;
+                    
+                    
+                    if(qty*1 > 0 && rat*1 > 0){
+
+                        var total = Math.round(((qty*rat) * 1) * 100) / 100;
+
+                        var after_dis = Math.round(((total - (total * dis)/100) * 1) * 100) / 100;
+
+                        
+                        tx_amnt =  Math.round((after_dis - (after_dis / (1 + (tax_rate_percentage / 100))) * 1) * 100) / 100;
+
+                        var no = i + 1;
+
+                        more_tax_show += "<div class='col-md-10 text-right pull-left'><label class='mt-9'>"+no+". Tax "+tax_rate_percentage+" %</label></div><div class='col-md-2 pull-right'><div class='form-group-sm text-center'><input type='text' value='"+tx_amnt+"' class='form-control form-control-sm text-center' disabled></div></div>";
+
+
+                        total_tax_amnt += tx_amnt;
+
+                        amount[i].value = after_dis;
+
+                        subtotal = subtotal + amount[i]['value']*1;
+
+
+                    }else{
+
+                        discount[i].value = 0;
+                        tax_amount[i].value = 0;
+                        amount[i].value = 0;
+                        // quantity[i].value = 0;
+                        // rate[i].value = 0;
+
+                    }
+
+                    // subtotal = subtotal + amount[i]['value']*1;
+
+                }
+
+                $('.sub_total').val(subtotal);
+
+                $('.more_tax_show').html(more_tax_show);
+
+                final_total = subtotal;
+
+                $('.final_total').val(final_total);
+
+            }
+
+
+
+
+            if(tax_type == 3){
+
+                for (var i = 0; i < quantity.length; i++) {
+
+                    var qty = Math.round((quantity[i]['value'] * 1) * 100) / 100;
+                    
+                    var rat = Math.round((rate[i]['value'] * 1) * 100) / 100;
+
+                    var dis = Math.round((discount[i]['value'] * 1) * 100) / 100;
+
+                    if(dis*1 > 0 && dis*1 != '' && dis <= 100){
+
+                    }else{
+                        dis = 0;
+                    }
+                    
+                    if(qty*1 > 0 && rat*1 > 0){
+
+                        var total = Math.round(((qty*rat) * 1) * 100) / 100;
+
+                        var after_dis = Math.round(((total - (total * dis)/100) * 1) * 100) / 100;
+
+                        amount[i].value = after_dis;
+
+                        subtotal = subtotal + amount[i]['value']*1;
+
+
+                    }else{
+
+                        discount[i].value = 0;
+                        tax_amount[i].value = 0;
+                        amount[i].value = 0;
+
+                    }
+
+                }
+
+                $('.sub_total').val(subtotal);
+
+                $('.more_tax_show').html(more_tax_show);
+
+                $('.final_total').val(subtotal);
+
+            }
+
+
+            
+
+        }
+
+
+        $(document).ready(function () { 
+            $(".select2").select2();
+
+            $("#datatable").DataTable();
+        });
+    
+    </script>
+@endpush

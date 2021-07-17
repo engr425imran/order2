@@ -1,0 +1,677 @@
+@extends('master')
+@section('title')
+    {{$title}}
+@endsection
+
+@section('stylesheet')
+    <link rel="stylesheet" type="text/css" href="{{asset('public/css/datatables.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{asset('public/css/bootstrap-fileupload.css')}}"/>
+    <style>
+        .table th {
+            font-size: 13px;
+        }
+        .table td {
+            font-size: 11px;
+        }
+        .w_12 {
+            width: 12%;
+        }
+    </style>
+@endsection
+
+@section('content')
+
+    <div class="content-header row">
+
+        <div class="content-header-left col-md-6 col-12 mb-2">
+            <h3 class="content-header-title mb-0">Customers</h3>
+            <div class="row breadcrumbs-top">
+        
+            </div>
+        </div>
+
+        <div class="content-header-right text-md-right col-md-6 col-12">
+            <div class="form-group">
+                <!--<a class="btn-icon btn btn-secondary btn-round" ><i class="ft-bell"></i> </a>-->
+                <a href="#" class="btn-icon btn btn-secondary btn-round btn-success" data-toggle="modal" data-target="#xlarge"><i class="fa fa-user"></i> New Customer</a>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <section>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Customer List:</h4>
+                        <a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+                        <div class="heading-elements">
+                            <ul class="list-inline mb-0">
+                                <li><a data-action="collapse"><i class="ft-minus"></i></a></li>
+                                <li><a data-action="reload"><i class="ft-rotate-cw"></i></a></li>
+                                <li><a data-action="expand"><i class="ft-maximize"></i></a></li>
+                                <li><a data-action="close"><i class="ft-x"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-content collapse show">
+                        <div class="card-body card-dashboard table-responsive">
+                            <table id="datatable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Mobile</th>
+                                        <th>Address</th>
+                                        <th>Open Balance</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($customers as $c)
+                                        <tr>
+                                            <td>{{$c->display_name}}</td>
+                                            <td>{{$c->email}}</td>
+                                            <td>{{$c->phone}}</td>
+                                            <td>{{$c->mobile}}</td>
+                                            <td>{{$c->c_street .', '. $c->c_state .', '. $c->c_postal .', '. $c->c_country }}</td>
+                                            <td>{{$c->opening_balance}}</td>
+                                            <td class="w_12">
+                                                <button 
+                                                    type="button" 
+                                                    class="btn btn-primary btn-sm btn-round edit_modal"
+                                                    customer_id="{{$c->cust_id}}"
+                                                    >
+                                                    <i class="ft-edit-2"></i>                                                
+                                                </button>
+                                                <button 
+                                                    type="button" 
+                                                    class="btn btn-danger btn-sm btn-round del"
+                                                    value="{{$c->cust_id}}"
+                                                    >
+                                                    <i class="ft-trash-2"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    
+    <div class="modal fade text-left addModel" id="xlarge" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <label class="modal-title text-text-bold-600 text-center" id="myModalLabel33">Customer Info</label>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>                              
+                </div>
+
+                <form action="#" method="post" id="addCustForm" enctype="multipart/form-data">
+
+                    {{csrf_field()}}     
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    <input type="text" name="first_name" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    <input type="text" name="last_name" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Display Name</label>
+                                    <input type="text" name="display_name" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                        <div class="row">
+
+                            <!--<div class="col-md-4">
+                                    <div class="form-group">
+                                    <label>Company</label>
+                                    <input type="text" name="company" class="form-control" >
+                            </div>-->
+                            
+                            <div class="col-md-4">
+                                <label for="timesheetinput2">Company</label>
+                                <div class="position-relative has-icon-left">
+                                    <input type="text" name="company" class="form-control" >
+                                    <div class="form-control-position">
+                                        <i class="fa fa-briefcase"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="text" name="email" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="text" name="phone" class="form-control" >
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Mobile</label>
+                                    <input type="text" name="mobile" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Fax</label>
+                                    <input type="text" name="fax" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Other</label>
+                                    <input type="text" name="other" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Website</label>
+                                    <input type="text" name="website" class="form-control">
+                                </div>
+                            </div>
+                            
+                        </div>  
+                                                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="nav nav-tabs nav-linetriangle no-hover-bg" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="base-tab1" data-toggle="tab" aria-controls="tab1" href="#tab1" role="tab" aria-selected="true">Address</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="base-tab2" data-toggle="tab" aria-controls="tab2" href="#tab2" role="tab" aria-selected="false">Notes</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="base-tab3" data-toggle="tab" aria-controls="tab3" href="#tab3" role="tab" aria-selected="false">Vat Info</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="base-tab4" data-toggle="tab" aria-controls="tab4" href="#tab4" role="tab" aria-selected="false">Payment & Billing</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="base-tab5" data-toggle="tab" aria-controls="tab5" href="#tab5" role="tab" aria-selected="false">Attachments</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content px-1 pt-1">
+                                    <div class="tab-pane active" id="tab1" role="tabpanel" aria-labelledby="base-tab1">
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Billing Address</label>
+                                                            <input type="text" class="form-control" name="b_street" id="b_street" placeholder="Street">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="b_city" id="b_city" placeholder="City/Town">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="b_state" id="b_state" placeholder="State/Province">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="b_postal" id="b_postal" placeholder="Postal Code">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="b_country" id="b_country" placeholder="Country">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Shipping Address</label> <label> (Same as Billing Address) <input type="checkbox" id="shipadd" name="shipadd"></label>
+                                                            
+                                                            <input type="text" class="form-control" name="c_street" id="c_street" placeholder="Street">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="c_city" id="c_city" placeholder="City/Town">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="c_state" id="c_state" placeholder="State/Province">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="c_postal" id="c_postal" placeholder="Postal Code">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control" name="c_country" id="c_country" placeholder="Country">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        
+                                    </div>
+                                    
+                                    <div class="tab-pane" id="tab2" role="tabpanel" aria-labelledby="base-tab2">
+                                        <div class="row">
+                                            <div class="col-md-12">
+
+                                                <div class="form-group">
+                                                    <label>Notes</label>
+                                                    <textarea class="form-control" name="note" rows="8"></textarea>
+                                                </div>
+                                            
+                                            </div>
+                            
+                                        </div> 
+                                    </div>
+
+                                    <div class="tab-pane" id="tab3" role="tabpanel" aria-labelledby="base-tab3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>VAT Reg. No.</label>
+                                                    <input type="text" name="vat_reg_no" class="form-control">
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+
+                                    <div class="tab-pane" id="tab4" role="tabpanel" aria-labelledby="base-tab4">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Preferred Payment Method</label>
+                                                            <select class="select2 form-control" name="payment_method">
+                                                                <option value="1">Cash</option>
+                                                                <option value="2">Check</option>
+                                                                <option value="3">Credit</option>
+                                                                <option value="4">Debit</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Preferred Delivery Method</label>
+                                                            <select class="select2 form-control" name="delivery_method">
+                                                                <option value="">None</option>
+                                                                <option value="1">Print Later</option>
+                                                                <option value="2">Send Later</option>
+                                                                
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Terms</label>
+                                                            <select class="select2 form-control" name="terms">
+                                                                <option value="1">Due on Receipt</option>
+                                                                <option value="2">Net 15</option>
+                                                                <option value="3">Net 30</option>
+                                                                <option value="4">Net 60</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Opening Balance</label>
+                                                            <input type="text" name="opening_balance" value="0.0" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>As Of</label>
+                                                            <input type="date" name="as_of_date" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+
+                                    <div class="tab-pane" id="tab5" role="tabpanel" aria-labelledby="base-tab5">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label><i class="icon-anchor"></i> Attachments</label>
+                                                    <input type="file" class="form-control" name="att" placeholder="Country">
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+
+                                </div>
+                            </div>                   
+                        </div>                    
+                    </div>
+                    <div class="modal-footer">
+                        <input type="reset" class="btn btn-outline-secondary btn-md" data-dismiss="modal" value="close">
+                        <input type="submit" class="btn btn-outline-primary btn-md" id="savecust" value="Save">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="modal fade text-left edit__modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <label class="modal-title text-text-bold-600 text-center" id="myModalLabel33">Edit Customer Info</label>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>                              
+                </div>
+
+                <form action="{{ route('updateCustomer') }}" method="post" enctype="multipart/form-data">
+
+                    {{csrf_field()}}
+                    <div class="modal-body">
+
+                        <div class="throw_customerinfo"></div>
+                   
+                    </div>
+                    <div class="modal-footer">
+                        <input type="reset" class="btn btn-outline-secondary btn-md" data-dismiss="modal" value="close">
+                        <input type="submit" class="btn btn-outline-primary btn-md" id="" value="Save">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade text-left delModel" id="xlarge" tabindex="-1" role="dialog" aria-labelledby="myModalLabel16" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <label class="modal-title text-text-bold-600 text-center" id="myModalLabel33">Customer Info</label>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>                              
+                </div>
+                <form action="#" method="post" id="addCustForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Are You sure want to delete <b><span class="custName" style="color:red;"></span></b> ?</label>
+                                </div>
+                            </div>
+                                <input type="hidden" id="custID" class="form-control">
+                        </div>
+                        {{csrf_field()}}                            
+                    </div>
+                    <div class="modal-footer">
+                        <input type="reset" class="btn btn-outline-secondary btn-md" data-dismiss="modal" value="close">
+                        <input type="button" class="btn btn-outline-danger btn-md" id="delcust" value="Delete">
+                    </div>
+                </form>                                 
+            </div>
+        </div>
+    </div>
+    
+@endsection
+
+@section('script')
+
+    <script type="text/javascript" src="{{asset('public/dt/datatable/datatables.min.js')}}"></script>
+    <script type="text/javascript" src="{{asset('public/js/bootstrap-fileupload.js')}}"></script>
+
+    <script>
+
+        $(document).ready(function(){
+            $('#pmenu').addClass('active');
+            $('#cst').addClass('active');
+
+            $(".edit_modal").on('click', function() {
+
+                var c_id = $(this).attr('customer_id');
+
+                $.ajax({
+
+                    url:"{{route('catch.customerInfo')}}",
+
+                    method:"GET",
+
+                    data:{c_id:c_id},
+
+                    success: function(data)
+                    {
+                        $('.throw_customerinfo').html(data);
+                    }
+                });
+
+                $('.edit__modal').modal();
+
+            });
+
+
+
+            $('.table').on('click', '.del', function() {
+                
+                var this_data = $(this);
+                var cust_id = $(this).val();
+                    
+                $.confirm({
+                    
+                    icon: 'fa fa-smile-o',
+                    theme: 'modern',
+                    closeIcon: true,
+                    animation: 'scale',
+                    type: 'red',
+                    autoClose: 'cancel|10000',
+                    escapeKey: 'cancel',
+                    
+                    buttons: {
+                    
+                        Inactive: {
+                    
+                            btnClass: 'btn-red',
+                        
+                            action: function() {
+                        
+                                $.ajax({
+                        
+                                    url:"{{route('inactive.customer')}}",
+                                    
+                                    method:"GET",
+                                    
+                                    data:{cust_id:cust_id},
+                                    
+                                    success: function(data) {
+                        
+                                        if(data == "1"){
+                                        
+                                            this_data.parent().parent().fadeOut();
+                                        
+                                        } else {
+                                        
+                                            console.log(data);
+                                        
+                                        }
+                                    }
+                                });
+                        
+                                this.setCloseAnimation('zoom');
+                            }
+                        
+                        },
+                    
+                        cancel: function() {
+                        
+                            $.alert('Canceled!');
+                            
+                            this.setCloseAnimation('zoom');
+                        }
+                    }
+                });
+            });
+        });
+
+        // ============================================= Old Js function Start ============================================= //        
+
+            var table = $('#custTable').DataTable({
+
+                "responsive": true,
+                "autoWidth" : false,
+                //"ordering": false,
+                //"paging" : true,
+                "processing": true,"serverSide": true,
+                //"columnDefs": [{ responsivePriority: 1, targets: 0 }],
+                "ajax":
+                    {
+                        "url":"<?= route('custPro') ?>",
+                        "dataType":"json",
+                        "type":"POST",
+                        "data": function ( d )
+                        {
+                            d._token= $('meta[name="csrf-token"]').attr('content');
+                            d.custstatus = $('#custstatus').val();
+                        }
+                    },
+                "columns":[
+                    {"data":"display_name"},
+                    {"data":"email"},
+                    {"data":"phone"},
+                    {"data":"mobile"},
+                    {"data":"address"},
+                    {"data":"opening_balance"},
+                    {"data":"action","searchable":false,"orderable":false}
+                ],
+                "order": [[0, 'desc']]   
+            });
+
+            $("#addCustForm").on('submit',function(event) {
+
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: "{{route('saveCust')}}",
+                    data:new FormData(this),
+                    dataType:'JSON',
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success:function(data)
+                    {
+                        table.ajax.reload( null, false );
+                        $('.addModel').modal('hide');
+                        toastr[data.type](data.message);
+                    }
+                });
+                $('#title').val('');
+                $('#body').val('');
+            });
+
+            $("#shipadd").on('change',function() {
+
+                if($("#shipadd").prop('checked') === true)
+                {
+                    $('#c_street').val($('#b_street').val());
+                    $('#c_city').val($('#b_city').val());
+                    $('#c_state').val($('#b_state').val());
+                    $('#c_postal').val($('#b_postal').val());
+                    $('#c_country').val($('#b_country').val());
+                }else{
+                    $('#c_street').val('');
+                    $('#c_city').val('');
+                    $('#c_state').val('');
+                    $('#c_postal').val('');
+                    $('#c_country').val('');
+                }
+            });
+
+            $(document).on('click', '.delete-modal', function() {
+
+                $('.modal-title').text('Delete Customer information');
+                $('.custName').html($(this).data('cname'));
+                $('#custID').val($(this).data('delcids'));
+                $('.delModel').modal('show');
+            });
+
+            $("#delcust").on('click',function() {
+                $.ajax({
+                    type: 'POST',
+                    url: "{{URL::to('/delete-customer')}}",
+                    data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    delcid: $('#custID').val()
+                    },
+                    success: function(data){
+                    table.ajax.reload( null, false );
+                    $('.delModel').modal('hide');
+                    toastr[data.type](data.message);
+                    }
+                });
+            });
+
+        // ============================================= Old Js function End ============================================= //
+    </script>
+
+
+@endsection
