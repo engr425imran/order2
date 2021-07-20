@@ -73,6 +73,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        dd('dsds');
         return User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
@@ -91,30 +92,31 @@ class RegisterController extends Controller
     {
         $this->validator($request->all());
         $code = substr(str_shuffle("0123456789"), 0, 5);
+        
         $user = new User;
         $user->name = $request->name;
         $user->email = $request->email;
         $user->phone = $request->phone;
         $user->verification_code = $code;
         $user->password = Hash::make($request->password);
-        $user->status = 0;
+        $user->status = 1;
         $user->register_date = date('Y-m-d');
 
         $company_info['display_name'] = $request->company_name;
 
         $company = DB::table('company_info')->insert($company_info);
        
-        // dd($user);
+        
         $user->save();
 
         // $u_user = User::findOrFail($user->id);
         // $d['user_id'] = $user->id;
         // $u_user->update($d);
         $inv = array();
-        $inv['template'] = 1;
+        // $inv['template'] = 1;
         $inv['inv_name'] = 'INV';
         $inv['inv_code'] = 00;
-        $inv['default_tax_rate'] = 0.00;
+        // $inv['default_tax_rate'] = 0.00;
 
         $inv['user_id'] = $user->id;
         $inv['updated_by'] = $user->id;
@@ -122,9 +124,8 @@ class RegisterController extends Controller
         $inv['updated_time'] = date('H:i:s');
 
         DB::table('inv_settings')->insert($inv);
-
-        $accounts = DB::table('account_default')->get();
-
+        $accounts = DB::table('account')->get();
+        
         foreach ($accounts as $key => $value) {
             $account = new Account();
             $account->user_id = $user->id;
@@ -139,6 +140,8 @@ class RegisterController extends Controller
             $account->created_time = date('H:i:s');
             $account->save();
         }
+
+
 
         $message =urlencode('Hello '. $request->name.'! Your Cubeapps verification code is '.$code);
         $url='http://www.winsms.co.za/api/batchmessage.asp?user=info@micleaners.co.za&password=Jordyn16$&message='.$message.'&Numbers='.$request->phone.';';

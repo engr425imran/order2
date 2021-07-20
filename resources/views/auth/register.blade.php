@@ -74,7 +74,7 @@
                                         <form method="POST" action="{{ route('register') }}">
                                             
                                             <fieldset class="form-group floating-label-form-group">
-                                                <label for="user-name">User Name</label>
+                                                <label for="user-name">Email Name</label>
                                                 <input id="name" type="text" class="form-control {{ $errors->has('name') ? ' is-invalid' : '' }}" name="name" value="{{ old('name') }}" required autofocus>
                                                 @if ($errors->has('name'))
                                                     <span class="invalid-feedback" role="alert">
