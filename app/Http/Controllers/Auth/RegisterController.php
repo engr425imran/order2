@@ -143,23 +143,25 @@ class RegisterController extends Controller
 
 
 
-        $message =urlencode('Hello '. $request->name.'! Your Cubeapps verification code is '.$code);
-        $url='http://www.winsms.co.za/api/batchmessage.asp?user=info@micleaners.co.za&password=Jordyn16$&message='.$message.'&Numbers='.$request->phone.';';
-        $fp = fopen($url, 'r');
-        while(!feof($fp))
-        {
-            $line = fgets($fp, 4000);
-            if($line){
-                // $u_user->update($d);
-                session()->flash('success', 'A verification code has been sent to '.$request->phone);
-                return Redirect::to(URL::temporarySignedRoute('verify', now()->addMinutes(2), ['user' => $user->id,'phone' => $user->phone]));
+        // $message =urlencode('Hello '. $request->name.'! Your Cubeapps verification code is '.$code);
+        // $url='http://www.winsms.co.za/api/batchmessage.asp?user=info@micleaners.co.za&password=Jordyn16$&message='.$message.'&Numbers='.$request->phone.';';
+        // $fp = fopen($url, 'r');
+        // while(!feof($fp))
+        // {
+        //     $line = fgets($fp, 4000);
+        //     if($line){
+        //         // $u_user->update($d);
+        //         session()->flash('success', 'A verification code has been sent to '.$request->phone);
+        //         return Redirect::to(URL::temporarySignedRoute('verify', now()->addMinutes(2), ['user' => $user->id,'phone' => $user->phone]));
 
-            }else {
-                session()->flash('error', 'There was a problem while registered');
-                return back();
-            }
-        }
-        fclose($fp);
+        //     }else {
+        //         session()->flash('error', 'There was a problem while registered');
+        //         return back();
+        //     }
+        // }
+        // fclose($fp);
+
+        return route('/');
         
     }
 }
