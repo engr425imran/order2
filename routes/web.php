@@ -24,7 +24,7 @@ Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('/');
 Route::get('/new', 'HomeController@newIndex');
-Route::get('/dashboard', 'HomeController@dashboard');
+// Route::get('/dashboard', 'HomeController@dashboard');
 Route::get('crm-login', 'FrontendController@crmlogin');
 
 Route::post('cubebooks/invoice-status','InvoiceController@invoiceStatus')->name('invoice.status');
